@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "simple-shelves",
+  "version": "${version}",
+  "name": "Simple Shelves",
+  "description": "Adds simple shelves for potions and books",
+  "authors": [
+    "PatrickShannon"
+  ],
+  "contact": {
+    "website": "mods.pinaz993.net"
+  },
+  "license": "MIT",
+  "icon": "assets/simple-shelves/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.pinaz993.simpleshelves.client.SimpleShelvesClient"
+    ],
+    "main": [
+      "net.pinaz993.simpleshelves.SimpleShelves"
+    ]
+  },
+  "mixins": [
+    "simple-shelves.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.6",
+    "fabric": "*",
+    "minecraft": "1.17.1"
+  }
+}
