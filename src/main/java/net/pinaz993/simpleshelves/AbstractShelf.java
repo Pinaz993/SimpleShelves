@@ -20,6 +20,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractShelf extends HorizontalFacingBlock {
     /**
      * A block that can store and display items and books. Each block has four quadrants. Each quadrant can contain one
@@ -187,7 +188,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock {
     }
 
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return (BlockState)this.getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite());
+        return this.getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite());
     }
 
     // A shelf only takes up half a block. If the block is facing south, it takes up the north half of the block, and
