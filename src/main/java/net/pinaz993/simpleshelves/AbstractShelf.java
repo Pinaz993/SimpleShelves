@@ -4,14 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.client.particle.SpellParticle;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.DustColorTransitionParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
@@ -23,11 +17,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.lwjgl.system.CallbackI;
 
-import java.util.Set;
-
-@SuppressWarnings("deprecation")
+@SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say.
 public abstract class AbstractShelf extends HorizontalFacingBlock {
     /**
      * A block that can store and display items and books. Each block has four quadrants. Each quadrant can contain one
@@ -216,38 +207,9 @@ public abstract class AbstractShelf extends HorizontalFacingBlock {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if(hit.getSide() == Direction.DOWN) return ActionResult.FAIL;
-
-//        if(player.getMainHandStack() == ItemStack.EMPTY) {
-//            world.addParticle(ParticleTypes.ENCHANT, hit.getPos().x, hit.getPos().y, hit.getPos().z, 0, 0, 0);
-//        }
-//        return ActionResult.SUCCESS;
-    }
-
-    /**
-     * In order to tell which quadrant (if any) the click should be interacting with, we need to distinguish between
-     * the BACK and BOTTOM sides (which cannot be interacted with at all, the FRONT side (which can interact with all
-     * four quadrants), and the LEFT, RIGHT and TOP sides (which each can interact with two quadrants each).
-     * Since which cardinal direction is front, left, right, and back changes based on what direction the block is
-     * facing, we have pre-defined values for all six faces of the shelf, and a method to determine which is which.
-     */
-    private enum LocalSide {
-        TOP, BOTTOM, BACK, LEFT, RIGHT, FRONT;
-
-        /**
-         * See above. Will throw a state exception if fed garbage. TODO: Needs tests.
-         * @param cardinalSide: side in question
-         * @param blockIsFacing: The direction the block is facing
-         * @return The local side equivalent to cardinalSide.
-         */
-        public LocalSide getLocalSide (Direction cardinalSide, Direction blockIsFacing) {
-            if(cardinalSide == blockIsFacing) return FRONT;
-            else if(cardinalSide == blockIsFacing.rotateYClockwise()) return RIGHT;
-            else if(cardinalSide == blockIsFacing.rotateYCounterclockwise()) return LEFT;
-            else if(cardinalSide == Direction.DOWN) return BOTTOM;
-            else if(cardinalSide == Direction.UP) return TOP;
-            else if(cardinalSide == blockIsFacing.getOpposite()) return BACK;
-            else throw new IllegalStateException(String.format(
-                    "Cannot determine local side from %s side of %s facing block.", cardinalSide, blockIsFacing));
-        }
+        if(LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING)) == LocalHorizontalSide.BACK) return ActionResult.FAIL;
+        return ActionResult.SUCCESS;
     }
 }
+
+
