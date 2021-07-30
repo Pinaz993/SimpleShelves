@@ -18,7 +18,7 @@ class LocalHorizontalSideTest {
     }
 
     @Test
-    @DisplayName("Right is 3 o'clock")
+    @DisplayName("Right is 3 o'clock.")
     void rightIs3oclock(){
         assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.EAST, Direction.NORTH));
         assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.SOUTH, Direction.EAST));
@@ -27,7 +27,7 @@ class LocalHorizontalSideTest {
     }
 
     @Test
-    @DisplayName("Left is 9 o'clock")
+    @DisplayName("Left is 9 o'clock.")
     void leftIs9oclock(){
         assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.WEST, Direction.NORTH));
         assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.NORTH, Direction.EAST));
@@ -35,6 +35,52 @@ class LocalHorizontalSideTest {
         assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.SOUTH, Direction.WEST));
     }
 
-//    @Test
-//    @DisplayName("Front ")
+    @Test
+    @DisplayName("Front is the side the block is facing.")
+    void frontIsFront(){
+        assertEquals(LocalHorizontalSide.FRONT, getLocalSide(Direction.NORTH, Direction.NORTH));
+        assertEquals(LocalHorizontalSide.FRONT, getLocalSide(Direction.EAST, Direction.EAST));
+        assertEquals(LocalHorizontalSide.FRONT, getLocalSide(Direction.SOUTH, Direction.SOUTH));
+        assertEquals(LocalHorizontalSide.FRONT, getLocalSide(Direction.WEST, Direction.WEST));
+    }
+
+    @Test
+    @DisplayName("Up is top regardless of facing.")
+    void upIsTop(){
+        assertEquals(LocalHorizontalSide.TOP, getLocalSide(Direction.UP, Direction.NORTH));
+        assertEquals(LocalHorizontalSide.TOP, getLocalSide(Direction.UP, Direction.EAST));
+        assertEquals(LocalHorizontalSide.TOP, getLocalSide(Direction.UP, Direction.SOUTH));
+        assertEquals(LocalHorizontalSide.TOP, getLocalSide(Direction.UP, Direction.WEST));
+    }
+
+    @Test
+    @DisplayName("Down is bottom regardless of facing.")
+    void downIsBottom(){
+        assertEquals(LocalHorizontalSide.BOTTOM, getLocalSide(Direction.DOWN, Direction.NORTH));
+        assertEquals(LocalHorizontalSide.BOTTOM, getLocalSide(Direction.DOWN, Direction.EAST));
+        assertEquals(LocalHorizontalSide.BOTTOM, getLocalSide(Direction.DOWN, Direction.SOUTH));
+        assertEquals(LocalHorizontalSide.BOTTOM, getLocalSide(Direction.DOWN, Direction.WEST));
+    }
+
+    @Test
+    @DisplayName("Throws exception if block is facing up.")
+    void cannotFaceUp(){
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.DOWN, Direction.UP));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.UP, Direction.UP));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.NORTH, Direction.UP));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.EAST, Direction.UP));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.SOUTH, Direction.UP));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.WEST, Direction.UP));
+    }
+
+    @Test
+    @DisplayName("Throws Exception if block is facing down.")
+    void cannotFaceDown(){
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.DOWN, Direction.DOWN));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.UP, Direction.DOWN));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.NORTH, Direction.DOWN));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.EAST, Direction.DOWN));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.SOUTH, Direction.DOWN));
+        assertThrows(IllegalStateException.class, () -> getLocalSide(Direction.WEST, Direction.DOWN));
+    }
 }
