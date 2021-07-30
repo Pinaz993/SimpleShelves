@@ -13,6 +13,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -206,8 +207,14 @@ public abstract class AbstractShelf extends HorizontalFacingBlock {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if(world.isClient) return ActionResult.SUCCESS; //VERY temporary, since it causes desync issues.
         if(hit.getSide() == Direction.DOWN) return ActionResult.FAIL;
         if(LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING)) == LocalHorizontalSide.BACK) return ActionResult.FAIL;
+        double localX = hit.getPos().getX() - pos.getX();
+        double localY = hit.getPos().getY() - pos.getY();
+        double localZ = hit.getPos().getZ() - pos.getZ();
+        System.out.printf("Facing %s, hit %s %s, %s, %s\n", state.get(FACING), hit.getSide(), localX, localY, localZ);
+        System.out.println(ShelfQuadrant.getQuadrant(hit, state.get(FACING)));
         return ActionResult.SUCCESS;
     }
 }

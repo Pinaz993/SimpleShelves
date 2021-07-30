@@ -24,16 +24,17 @@ enum LocalHorizontalSide {
         // The side facing the direction the block is facing is the front,
         else if (cardinalSide == blockIsFacing) return FRONT;
             // 3 o'clock is right,
-        else if (cardinalSide == blockIsFacing.rotateYClockwise()) return RIGHT;
+        else if (cardinalSide == blockIsFacing.rotateYCounterclockwise()) return RIGHT;
             // 9 o'clock is left,
-        else if (cardinalSide == blockIsFacing.rotateYCounterclockwise()) return LEFT;
+        else if (cardinalSide == blockIsFacing.rotateYClockwise()) return LEFT;
             // UP is always the top,
         else if (cardinalSide == Direction.UP) return TOP;
             // DOWN is always the bottom,
         else if (cardinalSide == Direction.DOWN) return BOTTOM;
             // and the opposite side is back.
         else if (cardinalSide == blockIsFacing.getOpposite()) return BACK;
-            // Finally, throw a verbose exception if you don't know what else to do. I think I've covered everything, but I could be wrong.
+            // Finally, throw a verbose exception if you don't know what else to do.
+            // I think I've covered everything, but I could be wrong.
         else throw new IllegalStateException(String.format(
                     "Cannot determine local side from %s side of %s facing block.", cardinalSide, blockIsFacing));
     }

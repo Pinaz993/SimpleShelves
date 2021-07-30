@@ -20,19 +20,19 @@ class LocalHorizontalSideTest {
     @Test
     @DisplayName("Right is 3 o'clock.")
     void rightIs3oclock(){
-        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.EAST, Direction.NORTH));
-        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.SOUTH, Direction.EAST));
-        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.WEST, Direction.SOUTH));
-        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.NORTH, Direction.WEST));
+        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.WEST, Direction.NORTH));
+        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.NORTH, Direction.EAST));
+        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.EAST, Direction.SOUTH));
+        assertEquals(LocalHorizontalSide.RIGHT, getLocalSide(Direction.SOUTH, Direction.WEST));
     }
 
     @Test
     @DisplayName("Left is 9 o'clock.")
     void leftIs9oclock(){
-        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.WEST, Direction.NORTH));
-        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.NORTH, Direction.EAST));
-        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.EAST, Direction.SOUTH));
-        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.SOUTH, Direction.WEST));
+        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.EAST, Direction.NORTH));
+        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.SOUTH, Direction.EAST));
+        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.WEST, Direction.SOUTH));
+        assertEquals(LocalHorizontalSide.LEFT, getLocalSide(Direction.NORTH, Direction.WEST));
     }
 
     @Test
