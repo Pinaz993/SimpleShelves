@@ -45,7 +45,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock {
      * need 4 storage slots: 1 normal item slot that can take in any item but is not exposed to iSided-ness, and three
      * book-like slots that are exposed to all sides of the block except the 'front' (as determi... how'd you guess?).
      *
-     * Non crouching 'use' behavior will be determined by the following flowchart:
+     * Non crouching 'use' behavior will follow the following flowchart:
      *
      *          Is the use item book-like?
      *             │                │

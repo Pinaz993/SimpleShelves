@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:lectern_books",
+    "minecraft:book",
+    "minecraft:enchanted_book"
+  ]
+}
