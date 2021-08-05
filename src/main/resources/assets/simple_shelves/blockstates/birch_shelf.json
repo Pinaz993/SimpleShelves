@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "simple_shelves:block/birch_shelf"},
+    "facing=east": {"model": "simple_shelves:block/birch_shelf", "y": 90},
+    "facing=south": {"model": "simple_shelves:block/birch_shelf", "y": 180},
+    "facing=west": {"model": "simple_shelves:block/birch_shelf", "y": 270}
+  }
+}
