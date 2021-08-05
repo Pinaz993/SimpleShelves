@@ -1,9 +1,7 @@
 package net.pinaz993.simpleshelves;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
@@ -18,9 +16,10 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say.
-public abstract class AbstractShelf extends HorizontalFacingBlock {
+public abstract class AbstractShelf extends HorizontalFacingBlock implements BlockEntityProvider {
     /**
      * A block that can store and display items and books. Each block has four quadrants. Each quadrant can contain one
      * generic item stack, or three book-like (any tagged as lectern_books, :book, :enchanted_book, or
@@ -204,6 +203,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock {
         };
     }
     //</editor-fold>
+
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
