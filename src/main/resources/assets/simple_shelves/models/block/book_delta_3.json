@@ -1,0 +1,19 @@
+{
+	"texture_size": [64, 32],
+	"textures": {
+		"1": "simple_shelves:shelf_books"
+	},
+	"elements": [
+		{
+			"name": "book_delta_3",
+			"from": [8, 1, 9],
+			"to": [11, 6.75, 15],
+			"faces": {
+				"north": {"uv": [10, 10.5, 10.75, 14], "texture": "#1"},
+				"east": {"uv": [8.25, 10.5, 10, 14], "texture": "#1"},
+				"west": {"uv": [10.75, 10.5, 12.5, 14], "texture": "#1"},
+				"up": {"uv": [12.75, 0.5, 13.5, 4], "texture": "#1"}
+			}
+		}
+	]
+}

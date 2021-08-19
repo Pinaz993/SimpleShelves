@@ -1,0 +1,19 @@
+{
+	"texture_size": [64, 32],
+	"textures": {
+		"1": "simple_shelves:shelf_books"
+	},
+	"elements": [
+		{
+			"name": "book_beta_1",
+			"from": [6, 9, 8.5],
+			"to": [8, 15, 15],
+			"faces": {
+				"north": {"uv": [1.5, 3.5, 2, 7], "texture": "#1"},
+				"east": {"uv": [0, 3.5, 1.75, 7], "texture": "#1"},
+				"west": {"uv": [2.25, 3.5, 4, 7], "texture": "#1"},
+				"up": {"uv": [13.5, 8, 14, 11.5], "texture": "#1"}
+			}
+		}
+	]
+}

@@ -48,39 +48,6 @@ public interface ShelfInventory extends SidedInventory {
     static int[] getGenericSlots(){return new int[]{12-15};}
     //</editor-fold>\
 
-//    /** NOT SURE IF THIS IS NEEDED.
-//     * Returns a fresh ShelfInventory full of the proposed items. Can take a list of items less than or equal to 16
-//     * items long, but will crash if the proposed list is longer. Will crash if a non book-like item is found in slots
-//     * 0-11. As close to a constructor as I'm going to get here.
-//     * @param proposedItems The items to put in the new shelf inventory.
-//     */
-//    static ShelfInventory of(DefaultedList<ItemStack> proposedItems) {
-//        // Crash if there are more than 16 entries in the proposed list.
-//        if(proposedItems.size() < 16) {
-//            throw new IllegalArgumentException(String.format(
-//                    "Cannot instantiate a Shelf Inventory with %s slots.", proposedItems.size()));
-//        }
-//        // Generate a list to go in the inventory to be returned.
-//        DefaultedList<ItemStack> acceptedItems = DefaultedList.ofSize(16, ItemStack.EMPTY);
-//        // Iterate through the book slots, throwing an exception if the item at that index is not book-like.
-//        for (int i: getBookSlots()) {
-//            // First make sure that you still have items to get. If not, we're done with this loop.
-//            if(i >= proposedItems.size()) break;
-//            ItemStack stack = proposedItems.get(i);
-//            if(isBookLike(stack) || stack.isEmpty()) acceptedItems.set(i, stack);
-//            else throw new IllegalArgumentException(String.format(
-//                    "Tried to instantiate a shelf inventory with non-book item %s in a book-like slot %s.", stack, i));
-//        }
-//        // Iterate through the generic slots, inserting any items found there.
-//        for (int i: getGenericSlots()){
-//            // First make sure that you still have items to get. If not, we're done with this loop.
-//            if(i >= proposedItems.size()) break;
-//            ItemStack stack = proposedItems.get(i);
-//            acceptedItems.set(i, stack);
-//        }
-//        return () -> acceptedItems;
-//    }
-
     // The items in this inventory. Since I'm implementing all of the inventory stuff here, there's no need for a getter.
     final DefaultedList<ItemStack> items = DefaultedList.ofSize(16, ItemStack.EMPTY);
 
@@ -197,7 +164,7 @@ public interface ShelfInventory extends SidedInventory {
     }
 
     /**
-     * Can I extract this item from this slot, possibly from a particular side?
+     * Can I extract this item from this slot, from a particular side?
      */
     @Override
     default boolean canExtract(int slot, ItemStack stack, Direction dir){
