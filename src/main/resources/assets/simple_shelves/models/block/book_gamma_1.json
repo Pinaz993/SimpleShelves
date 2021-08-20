@@ -1,7 +1,7 @@
 {
 	"texture_size": [64, 32],
 	"textures": {
-		"1": "simple_shelves:shelf_books"
+		"1": "simple_shelves:block/shelf_books"
 	},
 	"elements": [
 		{

@@ -5,6 +5,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -177,20 +178,62 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         setDefaultState(this.stateManager.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH));
     }
 
+    // Boolean properties for each book slot. Short of learning OpenGL, this is as elegant a solution I could come up with.
+    public static final BooleanProperty BOOK_ALPHA_1 = BooleanProperty.of("book_alpha_1");
+    public static final BooleanProperty BOOK_ALPHA_2 = BooleanProperty.of("book_alpha_2");
+    public static final BooleanProperty BOOK_ALPHA_3 = BooleanProperty.of("book_alpha_3");
+    public static final BooleanProperty BOOK_BETA_1 = BooleanProperty.of("book_beta_1");
+    public static final BooleanProperty BOOK_BETA_2 = BooleanProperty.of("book_beta_2");
+    public static final BooleanProperty BOOK_BETA_3 = BooleanProperty.of("book_beta_3");
+    public static final BooleanProperty BOOK_GAMMA_1 = BooleanProperty.of("book_gamma_1");
+    public static final BooleanProperty BOOK_GAMMA_2 = BooleanProperty.of("book_gamma_2");
+    public static final BooleanProperty BOOK_GAMMA_3 = BooleanProperty.of("book_gamma_3");
+    public static final BooleanProperty BOOK_DELTA_1 = BooleanProperty.of("book_delta_1");
+    public static final BooleanProperty BOOK_DELTA_2 = BooleanProperty.of("book_delta_2");
+    public static final BooleanProperty BOOK_DELTA_3 = BooleanProperty.of("book_delta_3");
+
+
     //<editor-fold desc="Horizontal Orientation, Placement, and Collision Region">
     // This block can be set down in four horizontal orientations, depending on where the player is facing when it is
-    // placed. Same arrangement as furnaces. That is accomplished by the following two methods.
+    // placed. Same arrangement as furnaces. That is accomplished by the following two methods. It also has state for
+    // every single book slot, because OpenGL is scary, and blockstates are nice and safe.
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
         stateManager.add(Properties.HORIZONTAL_FACING);
+        stateManager.add(BOOK_ALPHA_1);
+        stateManager.add(BOOK_ALPHA_2);
+        stateManager.add(BOOK_ALPHA_3);
+        stateManager.add(BOOK_BETA_1);
+        stateManager.add(BOOK_BETA_2);
+        stateManager.add(BOOK_BETA_3);
+        stateManager.add(BOOK_GAMMA_1);
+        stateManager.add(BOOK_GAMMA_2);
+        stateManager.add(BOOK_GAMMA_3);
+        stateManager.add(BOOK_DELTA_1);
+        stateManager.add(BOOK_DELTA_2);
+        stateManager.add(BOOK_DELTA_3);
     }
 
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite());
+        // Have to admit, being able to insert a line break before a dot call is pretty nice in this case.
+        return this.getDefaultState()
+                .with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite())
+                .with(BOOK_ALPHA_1, false)
+                .with(BOOK_ALPHA_2, false)
+                .with(BOOK_ALPHA_3, false)
+                .with(BOOK_BETA_1, false)
+                .with(BOOK_BETA_2, false)
+                .with(BOOK_BETA_3, false)
+                .with(BOOK_GAMMA_1, false)
+                .with(BOOK_GAMMA_2, false)
+                .with(BOOK_GAMMA_3, false)
+                .with(BOOK_DELTA_1, false)
+                .with(BOOK_DELTA_2, false)
+                .with(BOOK_DELTA_3, false);
     }
 
     // A shelf only takes up half a block. If the block is facing south, it takes up the north half of the block, and
-    // visa versa. Same for east and west. Method is deprecated for reasons other than "DON'T USE".
+    // visa versa. Same for east and west. Books do not effect this.
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext ctx) {
         Direction dir = state.get(FACING);

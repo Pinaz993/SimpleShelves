@@ -1,8 +1,9 @@
 {
+  "_comment": "Unusable at this time, as blockstates don't support inheritance for some reason. ",
   "multipart": [
     {
       "when": {"facing": "north"},
-      "apply": {"model": "simple_shelves:block/oak_shelf"}
+      "apply": {"model": "simple_shelves:block/birch_shelf"}
     },
     {
       "when": {"book_alpha_1": true, "facing": "north"},
@@ -54,7 +55,7 @@
     },
     {
       "when": {"facing": "east"},
-      "apply": {"model": "simple_shelves:block/oak_shelf", "y": 90}
+      "apply": {"model": "simple_shelves:block/birch_shelf", "y": 90}
     },
     {
       "when": {"book_alpha_1": true, "facing": "east"},
@@ -106,7 +107,7 @@
     },
     {
       "when": {"facing": "south"},
-      "apply": {"model": "simple_shelves:block/oak_shelf", "y": 180}
+      "apply": {"model": "simple_shelves:block/birch_shelf", "y": 180}
     },
     {
       "when": {"book_alpha_1": true, "facing": "south"},
@@ -158,7 +159,7 @@
     },
     {
       "when": {"facing": "west"},
-      "apply": {"model": "simple_shelves:block/oak_shelf", "y": 270}
+      "apply": {"model": "simple_shelves:block/birch_shelf", "y": 270}
     },
     {
       "when": {"book_alpha_1": true, "facing": "west"},
