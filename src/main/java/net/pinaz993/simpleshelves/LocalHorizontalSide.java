@@ -4,7 +4,6 @@ import net.minecraft.util.math.Direction;
 
 /**
  * A helper enum to tell right from left from back from front based on what direction a HorizontalFacingBlock is facing.
- * This could have been a private enum, but I want to try out tests. Thus, I have no choice but to put it in its own file.
  */
 enum LocalHorizontalSide {
     BACK, BOTTOM, FRONT, LEFT, RIGHT, TOP;
@@ -23,9 +22,7 @@ enum LocalHorizontalSide {
                     "Block cannot face %s", blockIsFacing));
         // The side facing the direction the block is facing is the front,
         else if (cardinalSide == blockIsFacing) return FRONT;
-            // 3 o'clock is right,
         else if (cardinalSide == blockIsFacing.rotateYCounterclockwise()) return RIGHT;
-            // 9 o'clock is left,
         else if (cardinalSide == blockIsFacing.rotateYClockwise()) return LEFT;
             // UP is always the top,
         else if (cardinalSide == Direction.UP) return TOP;

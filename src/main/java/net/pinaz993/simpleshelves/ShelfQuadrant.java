@@ -1,7 +1,10 @@
 package net.pinaz993.simpleshelves;
 
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * Quadrant Beta is top right.
  * Quadrant Gamma is bottom right.
  * Quadrant Delta is bottom left.
- * In other words, the quadrants are labeled in a clockwise direction, starting with the top left.
+ * In other words, the quadrants are labeled Alpha through Delta in a clockwise direction, starting with the top left.
  */
 public enum ShelfQuadrant {
     ALPHA, BETA, GAMMA, DELTA;
@@ -26,13 +29,13 @@ public enum ShelfQuadrant {
      */
     public static ShelfQuadrant getQuadrant(@NotNull BlockHitResult hit, Direction facing) {
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), facing);
-        Vec3d localCoords = hit.getPos().subtract(Vec3d.of(hit.getBlockPos())); // I checked, this DOES spit out a new Vec3d.
+        Vec3d localCoords = hit.getPos().subtract(Vec3d.of(hit.getBlockPos())); // Spits out a new Vec3d.
         // Gather 'round the Switch-Tree, one and all! We're about to have a great time.
-        // Left Side
         switch (localSide) {
+            // Left Side
             case LEFT:
                 return localCoords.getY() >= .5 ? ALPHA : DELTA;
-            // Well. That was a lot less fuss than I thought. Hm. Right side?
+            // Well. That was a lot less fuss than I thought. Right side?
             case RIGHT:
                 return localCoords.getY() >= .5 ? BETA : GAMMA;
             // Now I KNOW top isn't going to be that easy. I've got x and z to deal with there. Ditto for front.
@@ -63,7 +66,5 @@ public enum ShelfQuadrant {
                 }
             default: throw new IllegalStateException(String.format("How did you even click the %s side?!", localSide));
         }
-
-
     }
 }

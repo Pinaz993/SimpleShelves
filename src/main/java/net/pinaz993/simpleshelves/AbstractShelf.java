@@ -3,7 +3,9 @@ package net.pinaz993.simpleshelves;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
@@ -32,7 +34,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * Item stacks contained within a quadrant are rendered using the item frames renderer, with positions adjusted to
      * make the item or block look as if it is sitting on the shelf. Book-like items contained within a quadrant are
      * rendered much the same way as in BiblioCraft bookshelves: as rectangular prisms of various widths, heights, and
-     * colors inset one sub-voxel into the block. Models for books will be based on the location within the shelf.
+     * colors.
      *
      * In order to implement the manual item stack/book-like insertion/withdraw behaviors, first the face and location
      * on face of the right click event will have to be ascertained. If the face is bottom or 'back' (as determined from
@@ -150,8 +152,8 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * face that was clicked on if the player's inventory is full.
      *
      * iSidedInventory interaction will simply be accomplished by exposing all book-like slots to be manipulated from
-     * all sides except for the 'front.' (That hopper isn't touching the shelf. Fight me.) Generic item slots will not
-     * be available to automation, allowing for vanilla-style filtering of non-stackable book-like items.
+     * all sides. Generic item slots will not be available to automation, allowing for vanilla-style filtering of
+     * non-stackable book-like items.
      *
      * Shelves will have the same 'fullness indicator' behavior one expects from a chest, with the provision that any
      * slot that is unusable (book-like slots for a quadrant that is filled with an item and visa versa) will not be
@@ -250,16 +252,22 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if(world.isClient) return ActionResult.SUCCESS; //VERY temporary, since it causes desync issues.
-        if(hit.getSide() == Direction.DOWN) return ActionResult.FAIL;
-        if(LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING)) == LocalHorizontalSide.BACK) return ActionResult.FAIL;
-        double localX = hit.getPos().getX() - pos.getX();
-        double localY = hit.getPos().getY() - pos.getY();
-        double localZ = hit.getPos().getZ() - pos.getZ();
-        System.out.printf("Facing %s, hit %s %s, %s, %s\n", state.get(FACING), hit.getSide(), localX, localY, localZ);
-        System.out.println(ShelfQuadrant.getQuadrant(hit, state.get(FACING)));
+        LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING));
+        if (localSide == LocalHorizontalSide.BACK || localSide == LocalHorizontalSide.BOTTOM) return ActionResult.PASS;
+        if (!world.isClient()){
+            System.out.println(BookPosition.ALPHA_1.getBookPos(hit, state.get(FACING)));
+        }
         return ActionResult.SUCCESS;
+
     }
+
+//    public ActionResult attemptManualInsertion(PlayerEntity player, ShelfQuadrant quadrant, BookPosition bookPos){
+//        player.getInventory().
+//        ItemStack stack = player.getMainHandStack();
+//        if stack.isEmpty()
+//    }
 }
+
+
 
 
