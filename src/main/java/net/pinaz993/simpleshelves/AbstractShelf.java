@@ -11,6 +11,7 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -19,6 +20,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say.
@@ -259,6 +261,19 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         }
         return ActionResult.SUCCESS;
 
+    }
+
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (state.getBlock() != newState.getBlock()) {
+            BlockEntity be = world.getBlockEntity(pos);
+            if(be instanceof ShelfBlockEntity){
+                ItemScatterer.spawn(world, pos, (ShelfBlockEntity)be);
+                // Update all adjacent blocks, like comparators.
+                world.updateNeighbors(pos, this);
+            }
+            super.onStateReplaced(state, world, pos,newState, moved);
+        }
     }
 
 //    public ActionResult attemptManualInsertion(PlayerEntity player, ShelfQuadrant quadrant, BookPosition bookPos){

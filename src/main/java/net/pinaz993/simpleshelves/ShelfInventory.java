@@ -4,7 +4,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -34,23 +33,23 @@ public interface ShelfInventory extends SidedInventory {
      * This inventory has 16 slots.
      */
     @Override
-    default int size(){return items.size();}
+    default int size(){return getItems().size();}
 
     /**
      * Slots 0 - 11 are set aside for book-like items. They are accessible to other blocks from any side.
      * @return array of ints containing valid slot numbers for book-like slots.
      */
-    static int[] getBookSlots(){return new int[]{-11};}
+    static int[] getBookSlots(){return new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};}
 
     /**
      * Slots 12-15 are set aside for generic item stacks. They are not accessible to other blocks.
      * @return array of ints containing valid slot numbers for generic item slots.
      */
-    static int[] getGenericSlots(){return new int[]{12-15};}
+    static int[] getGenericSlots(){return new int[]{12, 13, 14, 15};}
     //</editor-fold>\
 
-    // The items in this inventory. Since I'm implementing all of the inventory stuff here, there's no need for a getter.
-    final DefaultedList<ItemStack> items = DefaultedList.ofSize(16, ItemStack.EMPTY);
+    // The items in this inventory. I'm making this a
+    DefaultedList<ItemStack> getItems();
 
     /**
      * Is this inventory empty?
@@ -58,15 +57,13 @@ public interface ShelfInventory extends SidedInventory {
     @Override
     default boolean isEmpty() {
         // Iterate through items. If any ItemStack isn't empty, return false.
-        for (ItemStack s: items) if (!s.isEmpty()) return false;
+        for (ItemStack s: getItems()) if (!s.isEmpty()) return false;
         // Else, return true.
         return true;
     }
 
     @Override
-    default void clear() {
-        items.clear();
-    }
+    default void clear() {getItems().clear();}
 
     //<editor-fold desc="Slot Stack Manipulation">
     /**
@@ -86,17 +83,15 @@ public interface ShelfInventory extends SidedInventory {
      * Give me the stack that is in this slot.
      */
     @Override
-    default ItemStack getStack(int slot) {
-        return items.get(slot);
-    }
+    default ItemStack getStack(int slot) {return getItems().get(slot);}
 
     /**
      * Replace the stack in this slot with this stack. Mark the block dirty.
      */
     @Override
     default void setStack(int slot, ItemStack stack) {
-        items.set(slot, stack);
-        // I don't think this bit applies to me.
+        getItems().set(slot, stack);
+        // I don't think this bit applies to me, but I'm putting it here anyway.
         if (stack.getCount() > getMaxCountPerStack()) {
             stack.setCount(getMaxCountPerStack());
         }
@@ -108,7 +103,7 @@ public interface ShelfInventory extends SidedInventory {
      */
     @Override
     default ItemStack removeStack(int slot) {
-        ItemStack rtn = Inventories.removeStack(items, slot);
+        ItemStack rtn = Inventories.removeStack(getItems(), slot);
         if(!rtn.isEmpty()) markDirty();
         return rtn;
     }
@@ -119,34 +114,36 @@ public interface ShelfInventory extends SidedInventory {
      */
     @Override
     default ItemStack removeStack(int slot, int amount) {
-        ItemStack rtn = Inventories.splitStack(items, slot, amount);
+        ItemStack rtn = Inventories.splitStack(getItems(), slot, amount);
         if (!rtn.isEmpty()) markDirty();
         return rtn;
     }
     //</editor-fold>
 
-    /**
-     * Let the world know that the block's state has changed. Reevaluate visual state in light of new inventory state.
-     */
-    @Override
-    default void markDirty() {
-        // This is the part where you update the visuals.
-    }
 
     /**
      * If this player aims at and attempts to use this block, can they use it? Should the block be highlighted?
      */
     @Override
     default boolean canPlayerUse(PlayerEntity player) {
-        return true;
+        return true; // Yup.
     }
-
+    default boolean quadrantHasBook(ShelfQuadrant quadrant){
+        switch (quadrant){
+            // For each quadrant, return true if one or more of the book slots are full.
+            case ALPHA -> {return !getItems().get(0).isEmpty() && !getItems().get(1).isEmpty() && !getItems().get(2).isEmpty();}
+            case BETA -> {return !getItems().get(3).isEmpty() && !getItems().get(4).isEmpty() && !getItems().get(5).isEmpty();}
+            case GAMMA -> {return !getItems().get(6).isEmpty() && !getItems().get(7).isEmpty() && !getItems().get(8).isEmpty();}
+            case DELTA -> {return !getItems().get(9).isEmpty() && !getItems().get(10).isEmpty() && !getItems().get(11).isEmpty();}
+            default -> {throw new IllegalArgumentException(String.format("Invalid Quadrant: %s", quadrant));}
+        }
+    }
     //<editor-fold desc="Sided Inventory Implementation">
     /**
      * What slots can we insert into and extract from?
      */
     @Override
-    public default int[] getAvailableSlots(Direction side){
+    default int[] getAvailableSlots(Direction side){
         // Just the book slots, sir. Side is irrelevant.
         return getBookSlots();
     }
