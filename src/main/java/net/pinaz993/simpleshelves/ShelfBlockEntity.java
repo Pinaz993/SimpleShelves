@@ -34,17 +34,24 @@ public class ShelfBlockEntity extends BlockEntity implements ShelfInventory {
         return super.writeNbt(nbt);
     }
 
+    // Lifted almost directly from BlockEntity.
     @Override
-    public void markDirty() {if(this.world != null) markDirty(this.world, this.pos, this.getCachedState());}
+    public void markDirty() {if(this.world != null) markDirtyInWorld(this.world, this.pos, this.getCachedState());}
 
-    protected static void markDirty(World world, BlockPos pos, BlockState state){
-        world.markDirty(pos);
+    // In BlockEntity, this method has the same name as the one above. Java doesn't want me to override that, as it's
+    // 'pRoTeCtEd'. Bah!
+    protected void markDirtyInWorld(World world, BlockPos pos, BlockState state){
         // TODO: Implement inventory validation.
-        // TODO: Implement BlockState updates.
-        // Lifted directly from BlockEntity.
-        if (!state.isAir()) {
-            world.updateComparators(pos, state.getBlock());
+        // Iterate through all block positions, updating state iff needed.
+        for(BookPosition bpos: BookPosition.class.getEnumConstants()){
+            // What is the state now?
+            boolean oldState = state.get(bpos.BLOCK_STATE_PROPERTY);
+            // Is the associated slot empty?
+            boolean newState = !this.getItems().get(bpos.SLOT).isEmpty();
+            // If the old state is different than the new state, tell the world to update the state to the new one.
+            if(oldState != newState) world.setBlockState(pos, state.with(bpos.BLOCK_STATE_PROPERTY, newState));
         }
+        markDirty(world, pos, state);
     }
 }
 

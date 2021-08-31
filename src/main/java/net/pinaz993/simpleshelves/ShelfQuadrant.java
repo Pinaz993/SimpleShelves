@@ -1,10 +1,7 @@
 package net.pinaz993.simpleshelves;
 
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.client.util.math.Vector2f;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
  * is it anyway? All these questions and more can be answered now!
  * Quadrant Alpha is top left.
  * Quadrant Beta is top right.
- * Quadrant Gamma is bottom right.
- * Quadrant Delta is bottom left.
- * In other words, the quadrants are labeled Alpha through Delta in a clockwise direction, starting with the top left.
+ * Quadrant Gamma is bottom left.
+ * Quadrant Delta is bottom right.
+ * In other words, the quadrants are labeled LtR, TtB.
  */
 public enum ShelfQuadrant {
     ALPHA, BETA, GAMMA, DELTA;
@@ -50,17 +47,17 @@ public enum ShelfQuadrant {
             case FRONT:
                 switch (facing) {
                     case NORTH:
-                        if(localCoords.getX() >=.5) return localCoords.getY() >= .5 ? ALPHA : DELTA;
-                        else return localCoords.getY() >= .5 ? BETA : GAMMA;
+                        if(localCoords.getX() >=.5) return localCoords.getY() >= .5 ? ALPHA : GAMMA;
+                        else return localCoords.getY() >= .5 ? BETA : DELTA;
                     case EAST:
-                        if(localCoords.getZ() >=.5) return localCoords.getY() >= .5 ? ALPHA : DELTA;
-                        else return localCoords.getY() >= .5 ? BETA : GAMMA;
+                        if(localCoords.getZ() >=.5) return localCoords.getY() >= .5 ? ALPHA : GAMMA;
+                        else return localCoords.getY() >= .5 ? BETA : DELTA;
                     case SOUTH:
-                        if(localCoords.getX() <=.5) return localCoords.getY() >= .5 ? ALPHA : DELTA;
-                        else return localCoords.getY() >= .5 ? BETA : GAMMA;
+                        if(localCoords.getX() <=.5) return localCoords.getY() >= .5 ? ALPHA : GAMMA;
+                        else return localCoords.getY() >= .5 ? BETA : DELTA;
                     case WEST:
-                        if(localCoords.getZ() <=.5) return localCoords.getY() >= .5 ? ALPHA : DELTA;
-                        else return localCoords.getY() >= .5 ? BETA : GAMMA;
+                        if(localCoords.getZ() <=.5) return localCoords.getY() >= .5 ? ALPHA : GAMMA;
+                        else return localCoords.getY() >= .5 ? BETA : DELTA;
                     default:
                         throw new IllegalStateException(String.format("Shelves cannot face %s.", facing));
                 }

@@ -39,14 +39,14 @@ public enum BookPosition {
             case LEFT:
                 return switch (quadrant) {
                     case ALPHA -> ALPHA_1;
-                    case DELTA -> DELTA_1;
+                    case GAMMA -> GAMMA_1;
                     default -> throw new IllegalStateException(String.format("Cannot access %s from %s side.", quadrant, localSide));
                 };
             // Right side only has access to the last books in Beta and Gamma quadrants.
             case RIGHT:
                 return switch (quadrant) {
                     case BETA -> BETA_3;
-                    case GAMMA -> GAMMA_3;
+                    case DELTA -> DELTA_3;
                     default -> throw new IllegalStateException(String.format("Cannot access %s from %s side.", quadrant, localSide));
                 };
             // Top side has access to all three books in both Alpha and Beta. Measure by the horizontal coordinate.
@@ -97,17 +97,17 @@ public enum BookPosition {
                     else return BETA_3;
                 } else { // We're in the bottom half of the block, so...
                     // DELTA_1 is three pixels across.
-                    if (u < .1875) return DELTA_1;
+                    if (u < .1875) return GAMMA_1;
                     // DELTA_2 is two pixels across.
-                    else if (u < .3125) return DELTA_2;
+                    else if (u < .3125) return GAMMA_2;
                     // DELTA 3 is 3 pixels across.
-                    else if (u < .5) return DELTA_3;
+                    else if (u < .5) return GAMMA_3;
                     // GAMMA_1 is 2 pixels across.
-                    else if (u < .625) return GAMMA_1;
+                    else if (u < .625) return DELTA_1;
                     // GAMMA_2 is 4 pixels across.
-                    else if (u < .875) return GAMMA_2;
+                    else if (u < .875) return DELTA_2;
                     // GAMMA_3 is 2 pixels across, but is also the last resort for the bottom half.
-                    else return GAMMA_3;
+                    else return DELTA_3;
                 }
             default: throw new IllegalStateException(String.format("No books are accessible from the %s side.", localSide));
         }

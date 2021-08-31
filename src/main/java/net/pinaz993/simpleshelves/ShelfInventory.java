@@ -131,11 +131,19 @@ public interface ShelfInventory extends SidedInventory {
     default boolean quadrantHasBook(ShelfQuadrant quadrant){
         switch (quadrant){
             // For each quadrant, return true if one or more of the book slots are full.
-            case ALPHA -> {return !getItems().get(0).isEmpty() && !getItems().get(1).isEmpty() && !getItems().get(2).isEmpty();}
-            case BETA -> {return !getItems().get(3).isEmpty() && !getItems().get(4).isEmpty() && !getItems().get(5).isEmpty();}
-            case GAMMA -> {return !getItems().get(6).isEmpty() && !getItems().get(7).isEmpty() && !getItems().get(8).isEmpty();}
-            case DELTA -> {return !getItems().get(9).isEmpty() && !getItems().get(10).isEmpty() && !getItems().get(11).isEmpty();}
-            default -> {throw new IllegalArgumentException(String.format("Invalid Quadrant: %s", quadrant));}
+            case ALPHA -> {return !getItems().get(BookPosition.ALPHA_1.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.ALPHA_2.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.ALPHA_3.SLOT).isEmpty();}
+            case BETA -> {return !getItems().get(BookPosition.BETA_1.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.BETA_2.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.BETA_3.SLOT).isEmpty();}
+            case GAMMA -> {return !getItems().get(BookPosition.GAMMA_1.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.GAMMA_2.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.GAMMA_3.SLOT).isEmpty();}
+            case DELTA -> {return !getItems().get(BookPosition.DELTA_1.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.DELTA_2.SLOT).isEmpty()
+                    && !getItems().get(BookPosition.DELTA_3.SLOT).isEmpty();}
+            default -> throw new IllegalArgumentException(String.format("Invalid Quadrant: %s", quadrant));
         }
     }
     //<editor-fold desc="Sided Inventory Implementation">
