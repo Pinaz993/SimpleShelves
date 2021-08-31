@@ -3,9 +3,7 @@ package net.pinaz993.simpleshelves;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
@@ -15,13 +13,10 @@ import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say.
 public abstract class AbstractShelf extends HorizontalFacingBlock implements BlockEntityProvider {
@@ -200,7 +195,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     //<editor-fold desc="Horizontal Orientation, Placement, and Collision Region">
     // This block can be set down in four horizontal orientations, depending on where the player is facing when it is
     // placed. Same arrangement as furnaces. That is accomplished by the following two methods. It also has state for
-    // every single book slot, because OpenGL is scary, and blockstates are nice and safe.
+    // every single book slot, because OpenGL is scary, and block states are nice and safe.
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
         stateManager.add(Properties.HORIZONTAL_FACING);
