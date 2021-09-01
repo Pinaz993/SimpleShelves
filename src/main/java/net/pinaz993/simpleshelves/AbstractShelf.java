@@ -45,110 +45,6 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * need 4 storage slots: 1 normal item slot that can take in any item but is not exposed to iSided-ness, and three
      * book-like slots that are exposed to all sides of the block except the 'front' (as determi... how'd you guess?).
      *
-     * Non crouching 'use' behavior will follow the following flowchart:
-     *
-     *          Is the use item book-like?
-     *             │                │
-     *             │                │
-     *             │                │
-     *             │                │
-     *            yes               no
-     *             │                 │
-     *             │                 │
-     *             │                 │
-     *             │                 │
-     *             │         Is the use item stack empty?
-     *             │           │                   │
-     *             │           │                   │
-     *             │          yes                  │
-     *             │           │                   │
-     *             │           │                   no
-     *             │       Do nothing.              │
-     *             │                     ┌──────────┘
-     *             │                     │
-     *             │          Is the quadrant occupied
-     *             │          by >= 1 book-like stack?
-     *             │             │               │
-     *             │             │               │
-     *             │            yes              no
-     *             │             │               │
-     *             │             │               │
-     *             │         Do nothing.         │
-     *             │                     ┌───────┘
-     *             │                     │
-     *             │             Is the quadrant occupied by a
-     *             │             generic item stack?     │
-     *             │              │                      │
-     *             │              │                     no
-     *             │              │              ┌───────
-     *             │              │              │
-     *             │             yes    Transfer the use item stack
-     *             │              │     to the quadrant. Update block.
-     *             │              │
-     *             │              │
-     *             │       Can the use item stack
-     *             │       partially or completely
-     *             │       stack with the quadrant
-     *             │       item stack?       │
-     *             │         │               │
-     *             │         │               │
-     *             │         │              no
-     *             │        yes              │
-     *             │         │               │
-     *             │         │           Do nothing.
-     *             │         └──────┐
-     *             │                │
-     *             │    Transfer as many items
-     *             │    as possible to the quadrant,
-     *             │    leaving any remainder in the
-     *             │    player's inventory. Update block.
-     *             │
-     *             │
-     *             │
-     * Is the quadrant occupied by a
-     * generic item stack?     │
-     *    │                    │
-     *    │                    │
-     *   yes               ┌───┘
-     *    │                │
-     *    │               no
-     * Do nothing.        │
-     *                    │
-     *                    │
-     *             Is the sub-quadrant occupied
-     *             by a book-like stack?│
-     *               │                  │
-     *               │                  │
-     *               │                 no
-     *               │                 │
-     *               │               ┌─┘
-     *              yes              │
-     *               │     Transfer the item stack into
-     *               │     the slot corresponding to the
-     *               │     sub-quadrant. Update block.
-     *               │
-     *               │
-     *     Can the use item stack
-     *     partially or completely
-     *     stack with the quadrant
-     *     item stack?       │
-     *       │               │
-     *       │               │
-     *       │              no
-     *      yes              │
-     *       │               │
-     *       │           Do nothing.
-     *       └─────────┐
-     *                 │
-     *      Transfer as many items
-     *      as possible to the quadrant,
-     *      leaving any remainder in the
-     *      player's inventory. Update block.
-     *
-     * Crouching 'use' behavior (shift + right click by default) will do nothing if the slot is empty, place the
-     * contained item stack in the player's inventory if there's room, or spawn it as an entity at the center of the
-     * face that was clicked on if the player's inventory is full.
-     *
      * iSidedInventory interaction will simply be accomplished by exposing all book-like slots to be manipulated from
      * all sides. Generic item slots will not be available to automation, allowing for vanilla-style filtering of
      * non-stackable book-like items.
@@ -270,8 +166,24 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         ShelfQuadrant quadrant = ShelfQuadrant.getQuadrant(hit, state.get(FACING));
         // What's in the player's main hand?
         ItemStack activeStack = player.getMainHandStack();
-        // Is the player's main hand empty? If so, the action fails, full stop.
-        if (activeStack.isEmpty()) return ActionResult.FAIL;
+        // Is the player's main hand empty?
+        if (activeStack.isEmpty()) {
+            // If so, try to extract an item from the shelf.
+            // Does the current quadrant have a stack?
+            if(blockEntity.quadrantHasGenericItem(quadrant)){
+                // If so, try to extract the stack from the generic slot.
+                // TODO: Implement manual item extraction for generic slots.
+                return ActionResult.SUCCESS;
+            }
+            // Which book slot?
+            BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING));
+            // Does that book position have a stack in it?
+            if (!blockEntity.getStack(bookPosition.SLOT).isEmpty()){
+                // If so, try to extract the stack.
+                // TODO: Implement manual item extraction for book slots.
+                return ActionResult.SUCCESS;
+            }
+        }
         // Is the player holding a book-like item?
         if(ShelfInventory.isBookLike(activeStack)){
             // If so, try to insert it into the appropriate book slot.
