@@ -18,7 +18,7 @@ public enum ShelfQuadrant {
     ALPHA(12, new BookPosition[]{BookPosition.ALPHA_1, BookPosition.ALPHA_2, BookPosition.ALPHA_3}),
     BETA(13, new BookPosition[]{BookPosition.BETA_1, BookPosition.BETA_2, BookPosition.BETA_3}),
     GAMMA(14, new BookPosition[]{BookPosition.GAMMA_1, BookPosition.GAMMA_2, BookPosition.GAMMA_3}),
-    DELTA(14, new BookPosition[]{BookPosition.DELTA_1, BookPosition.DELTA_2, BookPosition.DELTA_3});
+    DELTA(15, new BookPosition[]{BookPosition.DELTA_1, BookPosition.DELTA_2, BookPosition.DELTA_3});
 
     public final int GENERIC_ITEM_SLOT;
     public final BookPosition[] BOOK_POSITIONS;

@@ -212,8 +212,10 @@ public interface ShelfInventory extends SidedInventory {
      * Does the given quadrant have a generic item in it?
      */
     default boolean quadrantHasGenericItem(ShelfQuadrant quadrant){
-        return !getItems().get(quadrant.GENERIC_ITEM_SLOT).isEmpty();
+        return !getStack(quadrant.GENERIC_ITEM_SLOT).isEmpty();
     }
+
+
     //<editor-fold desc="Sided Inventory Implementation">
     /**
      * What slots can we insert into and extract from?
@@ -231,9 +233,15 @@ public interface ShelfInventory extends SidedInventory {
     default boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir){
         // If the item isn't book-like, then the answer is no.
         if(!isBookLike(stack)) return false;
-        // Slot has to be in the book-like slots to be inserted into. What a one-liner!
-        else for (int i: getBookSlots()) if(slot == i) return true;
-        // If all else fails, then no, you cannot.
+        // Iterate over all book positions in all quadrants. If the given slot belongs to the current book position,
+        // defer to if the quadrant that book lives in already has a generic item.
+        // This isn't the most efficient way to do this, I know. I don't like it all that much, TBH.
+        // But short of writing out a 12-entry if-else, there's no way I can do this without magic numbers.
+        // Also, I really like the fact that you can nest iterators in a single line like this.
+        for (ShelfQuadrant q: ShelfQuadrant.class.getEnumConstants()) for (BookPosition bp: q.BOOK_POSITIONS) {
+            if(slot == bp.SLOT) return !quadrantHasGenericItem(q);
+        }
+        // If all else fails, return false.
         return false;
     }
 
