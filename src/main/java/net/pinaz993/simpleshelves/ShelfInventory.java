@@ -37,15 +37,35 @@ public interface ShelfInventory extends SidedInventory {
 
     /**
      * Slots 0 - 11 are set aside for book-like items. They are accessible to other blocks from any side.
+     * I'm defining this in terms of the enum fields because magic numbers bad.
      * @return array of ints containing valid slot numbers for book-like slots.
      */
-    static int[] getBookSlots(){return new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};}
+    static int[] getBookSlots(){return new int[]{
+            BookPosition.ALPHA_1.SLOT,
+            BookPosition.ALPHA_2.SLOT,
+            BookPosition.ALPHA_3.SLOT,
+            BookPosition.BETA_1.SLOT,
+            BookPosition.BETA_2.SLOT,
+            BookPosition.BETA_3.SLOT,
+            BookPosition.GAMMA_1.SLOT,
+            BookPosition.GAMMA_2.SLOT,
+            BookPosition.GAMMA_3.SLOT,
+            BookPosition.DELTA_1.SLOT,
+            BookPosition.DELTA_2.SLOT,
+            BookPosition.DELTA_3.SLOT,
+    };}
 
     /**
      * Slots 12-15 are set aside for generic item stacks. They are not accessible to other blocks.
+     * I'm defining this in terms of the enum fields because magic numbers bad.
      * @return array of ints containing valid slot numbers for generic item slots.
      */
-    static int[] getGenericSlots(){return new int[]{12, 13, 14, 15};}
+    static int[] getGenericSlots(){return new int[]{
+            ShelfQuadrant.ALPHA.GENERIC_ITEM_SLOT,
+            ShelfQuadrant.BETA.GENERIC_ITEM_SLOT,
+            ShelfQuadrant.GAMMA.GENERIC_ITEM_SLOT,
+            ShelfQuadrant.DELTA.GENERIC_ITEM_SLOT
+    };}
     //</editor-fold>\
 
     // The items in this inventory. I'm making this a
@@ -77,6 +97,55 @@ public interface ShelfInventory extends SidedInventory {
         for (int i: getGenericSlots()) if(slot == i) return true;
         // If not in either, throw an exception.
         throw new IllegalArgumentException(String.format("Invalid slot index for shelf: %s", slot));
+    }
+
+    /**
+     * Attempts to insert the given ItemStack into the given inventory slot. If the slot isn't occupied, inserts the
+     * entire ItemStack into the slot and returns an empty ItemStack.
+     * If the slot is occupied by a stack that isn't full of items and is the same kind of item as the new stack, it
+     * inserts as many of the items as it can into the stack, and returns either the amount of items that are left, or
+     * an empty stack if they all go in.
+     * If the slot is occupied by an incompatible stack or a full stack, it does nothing and returns the new stack.
+     * @param slot The slot to insert into.
+     * @param newStack The stack to insert.
+     * @return Any leftover items, or an empty stack.
+     */
+    default ItemStack attemptInsertion(int slot, ItemStack newStack){
+        ItemStack oldStack = getStack(slot);
+        // Is the inventory slot empty?
+        if(oldStack.isEmpty()){
+            // If so, put the new stack in the inventory slot and return an empty stack.
+            getItems().set(slot, newStack);
+            // We changed items. Update the looks of the block.
+            markDirty();
+            return ItemStack.EMPTY;
+        }
+        // Is the is the old stack stackable, of the same Item as the new stack, and less than full??
+        else if (oldStack.isStackable() && oldStack.isItemEqual(newStack) && oldStack.getCount() < oldStack.getMaxCount()) {
+            // If so, try to insert the new stack on top of the old stack.
+            // Can the new stack completely stack with the old stack?
+            if (newStack.getCount() >= oldStack.getMaxCount() - oldStack.getCount()) {
+                // If so, combine the two stacks and return an empty stack.
+                oldStack.setCount(oldStack.getCount() + newStack.getCount());
+                // We changed items. Update the looks of the block.
+                markDirty();
+                return ItemStack.EMPTY;
+            }
+            // No? We must have too many items in the new stack to fit in the old stack.
+            else {
+                // How many items can we fit in the old stack?
+                int diff = oldStack.getMaxCount() - oldStack.getCount();
+                // Subtract that from the new stack.
+                newStack.setCount(newStack.getCount() - diff);
+                // The old stack is now full.
+                oldStack.setCount(oldStack.getMaxCount());
+                // return what's left of the new stack.
+                return newStack;
+            }
+
+        }
+        // Otherwise, we can't insert at all. Return the stack that can't be inserted.
+        else return newStack;
     }
 
     /**
@@ -128,23 +197,22 @@ public interface ShelfInventory extends SidedInventory {
     default boolean canPlayerUse(PlayerEntity player) {
         return true; // Yup.
     }
+
+    /**
+     * Does the given quadrant have any books in it?
+     */
     default boolean quadrantHasBook(ShelfQuadrant quadrant){
-        switch (quadrant){
-            // For each quadrant, return true if one or more of the book slots are full.
-            case ALPHA -> {return !getItems().get(BookPosition.ALPHA_1.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.ALPHA_2.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.ALPHA_3.SLOT).isEmpty();}
-            case BETA -> {return !getItems().get(BookPosition.BETA_1.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.BETA_2.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.BETA_3.SLOT).isEmpty();}
-            case GAMMA -> {return !getItems().get(BookPosition.GAMMA_1.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.GAMMA_2.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.GAMMA_3.SLOT).isEmpty();}
-            case DELTA -> {return !getItems().get(BookPosition.DELTA_1.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.DELTA_2.SLOT).isEmpty()
-                    && !getItems().get(BookPosition.DELTA_3.SLOT).isEmpty();}
-            default -> throw new IllegalArgumentException(String.format("Invalid Quadrant: %s", quadrant));
-        }
+        // Iterate through all book positions in the quadrant. If any of them aren't empty, return true.
+        for (BookPosition bpos: quadrant.BOOK_POSITIONS) if (!getItems().get(bpos.SLOT).isEmpty()) return true;
+        // Otherwise, return false.
+        return false;
+    }
+
+    /**
+     * Does the given quadrant have a generic item in it?
+     */
+    default boolean quadrantHasGenericItem(ShelfQuadrant quadrant){
+        return !getItems().get(quadrant.GENERIC_ITEM_SLOT).isEmpty();
     }
     //<editor-fold desc="Sided Inventory Implementation">
     /**

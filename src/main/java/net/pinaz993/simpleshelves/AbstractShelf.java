@@ -4,6 +4,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
@@ -177,7 +178,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         setDefaultState(this.stateManager.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH));
     }
 
-    // Boolean properties for each book slot. Short of learning OpenGL, this is as elegant a solution I could come up with.
+    // Boolean properties for each book slot. Short of learning OpenGL, this is as elegant a solution as I could come up with.
     public static final BooleanProperty BOOK_ALPHA_1 = BooleanProperty.of("book_alpha_1");
     public static final BooleanProperty BOOK_ALPHA_2 = BooleanProperty.of("book_alpha_2");
     public static final BooleanProperty BOOK_ALPHA_3 = BooleanProperty.of("book_alpha_3");
@@ -249,10 +250,48 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        ShelfBlockEntity blockEntity;
+        // Let's be clear about any block entity shenanigans.
+        try{
+            blockEntity = (ShelfBlockEntity) world.getBlockEntity(pos);
+            assert blockEntity != null;
+        } catch(Exception e) {
+            throw new IllegalStateException(String.format("""
+                            Wrong Block Entity for shelf.
+                            Block Entity: %s
+                            Coordinates: %s""", world.getBlockEntity(pos), pos
+            ));
+        }
+        // What side was hit?
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING));
+        // If it was the bottom or back, no dice.
         if (localSide == LocalHorizontalSide.BACK || localSide == LocalHorizontalSide.BOTTOM) return ActionResult.PASS;
-        if (!world.isClient()){
-            System.out.println(BookPosition.ALPHA_1.getBookPos(hit, state.get(FACING)));
+        // Which quadrant?
+        ShelfQuadrant quadrant = ShelfQuadrant.getQuadrant(hit, state.get(FACING));
+        // What's in the player's main hand?
+        ItemStack activeStack = player.getMainHandStack();
+        // Is the player's main hand empty? If so, the action fails, full stop.
+        if (activeStack.isEmpty()) return ActionResult.FAIL;
+        // Is the player holding a book-like item?
+        if(ShelfInventory.isBookLike(activeStack)){
+            // If so, try to insert it into the appropriate book slot.
+            // If the quadrant the player clicked on has a generic item in it, the action fails, full stop.
+            if (blockEntity.quadrantHasGenericItem(quadrant)) return ActionResult.FAIL;
+            // Which book slot?
+            BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING));
+            // Defer to the logic in ShelfInventory.attemptInsertion. Place the result of that method in the player's selected slot.
+            player.getInventory().setStack(player.getInventory().selectedSlot,
+                    blockEntity.attemptInsertion(bookPosition.SLOT, activeStack));
+            // An action was carried out.
+        }
+        // The player's hand isn't empty, and it doesn't have a book-like object in it. Treat the stack as generic.
+        else {
+            // If the quadrant the player clicked on has books, the action fails, full stop.
+            if (blockEntity.quadrantHasBook(quadrant)) return ActionResult.FAIL;
+            // Defer to the logic in ShelfInventory.attemptInsertion. Place the result of that method in the player's selected slot.
+            player.getInventory().setStack(player.getInventory().selectedSlot,
+                    blockEntity.attemptInsertion(quadrant.GENERIC_ITEM_SLOT, activeStack));
+            // An action was carried out.
         }
         return ActionResult.SUCCESS;
 
@@ -271,11 +310,6 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         }
     }
 
-//    public ActionResult attemptManualInsertion(PlayerEntity player, ShelfQuadrant quadrant, BookPosition bookPos){
-//        player.getInventory().
-//        ItemStack stack = player.getMainHandStack();
-//        if stack.isEmpty()
-//    }
 }
 
 

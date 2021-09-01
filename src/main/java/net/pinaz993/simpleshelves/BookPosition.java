@@ -29,7 +29,7 @@ public enum BookPosition {
         this.BLOCK_STATE_PROPERTY = blockStateProperty;
     }
 
-    public BookPosition getBookPos (BlockHitResult hit, Direction facing) {
+    public static BookPosition getBookPos (BlockHitResult hit, Direction facing) {
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), facing);
         Vec3d localCoords = hit.getPos().subtract(Vec3d.of(hit.getBlockPos()));
         ShelfQuadrant quadrant = ShelfQuadrant.getQuadrant(hit, facing);
