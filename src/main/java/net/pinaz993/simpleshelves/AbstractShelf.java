@@ -107,10 +107,10 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        ShelfBlockEntity blockEntity;
+        ShelfEntity blockEntity;
         // Let's be clear about any block entity shenanigans.
         try{
-            blockEntity = (ShelfBlockEntity) world.getBlockEntity(pos);
+            blockEntity = (ShelfEntity) world.getBlockEntity(pos);
             assert blockEntity != null;
         } catch(Exception e) {
             throw new IllegalStateException(String.format("""
@@ -174,8 +174,8 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity be = world.getBlockEntity(pos);
-            if(be instanceof ShelfBlockEntity){
-                ItemScatterer.spawn(world, pos, (ShelfBlockEntity)be);
+            if(be instanceof ShelfEntity){
+                ItemScatterer.spawn(world, pos, (ShelfEntity)be);
                 // Update all adjacent blocks, like comparators.
                 world.updateNeighbors(pos, this);
             }

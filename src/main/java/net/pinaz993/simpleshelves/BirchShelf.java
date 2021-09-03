@@ -13,6 +13,6 @@ public class BirchShelf extends AbstractShelf {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new ShelfBlockEntity(pos, state);
+        return new ShelfEntity(pos, state);
     }
 }

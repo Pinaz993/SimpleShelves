@@ -14,14 +14,14 @@ import net.minecraft.world.World;
  * inventory stuff lives over there.
  */
 
-public class ShelfBlockEntity extends BlockEntity implements ShelfInventory {
+public class ShelfEntity extends BlockEntity implements ShelfInventory {
 
     //<editor-fold desc="Standard Inventory Boilerplate">
 
     // The items that are in the inventory.
     DefaultedList<ItemStack> items;
 
-    public ShelfBlockEntity(BlockPos pos, BlockState state) {
+    public ShelfEntity(BlockPos pos, BlockState state) {
         super(SimpleShelves.SHELF_BLOCK_ENTITY, pos, state);
         // Initialize the list of items that are stored in this inventory.
         this.items = DefaultedList.ofSize(16, ItemStack.EMPTY);

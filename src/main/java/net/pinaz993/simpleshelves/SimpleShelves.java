@@ -17,7 +17,7 @@ public class SimpleShelves implements ModInitializer {
 
     public static final OakShelf OAK_SHELF = new OakShelf(WOOD_SHELF_SETTINGS);
     public static final BirchShelf BIRCH_SHELF = new BirchShelf(WOOD_SHELF_SETTINGS);
-    public static BlockEntityType<ShelfBlockEntity> SHELF_BLOCK_ENTITY;
+    public static BlockEntityType<ShelfEntity> SHELF_BLOCK_ENTITY;
 
     @Override
     public void onInitialize() {
@@ -32,6 +32,6 @@ public class SimpleShelves implements ModInitializer {
         //Register BlockEntities
         SHELF_BLOCK_ENTITY = Registry.register(
                 Registry.BLOCK_ENTITY_TYPE, "simple_shelves:shelf_block_entity",
-                FabricBlockEntityTypeBuilder.create(ShelfBlockEntity::new, OAK_SHELF, BIRCH_SHELF).build(null));
+                FabricBlockEntityTypeBuilder.create(ShelfEntity::new, OAK_SHELF, BIRCH_SHELF).build(null));
     }
 }
