@@ -30,14 +30,14 @@ public interface ShelfInventory extends SidedInventory {
     static boolean isBookLike(ItemStack stack){return ItemTags.BOOK_LIKE.contains(stack.getItem());}
 
     /**
-     * This inventory has 16 slots.
+     * This inventory has 16 slots. That is defined in ShelfBlockEntity.
      */
     @Override
     default int size(){return getItems().size();}
 
     /**
      * Slots 0 - 11 are set aside for book-like items. They are accessible to other blocks from any side.
-     * I'm defining this in terms of the enum fields because magic numbers bad.
+     * Defined in terms of the enum fields because magic numbers bad.
      * @return array of ints containing valid slot numbers for book-like slots.
      */
     static int[] getBookSlots(){return new int[]{
@@ -57,7 +57,7 @@ public interface ShelfInventory extends SidedInventory {
 
     /**
      * Slots 12-15 are set aside for generic item stacks. They are not accessible to other blocks.
-     * I'm defining this in terms of the enum fields because magic numbers bad.
+     * Defined in terms of the enum fields because magic numbers bad.
      * @return array of ints containing valid slot numbers for generic item slots.
      */
     static int[] getGenericSlots(){return new int[]{
@@ -68,7 +68,9 @@ public interface ShelfInventory extends SidedInventory {
     };}
     //</editor-fold>\
 
-    // The items in this inventory. I'm making this a
+    /**
+     * Get the list of items in this inventory. Using a getter because I can't initialize the field here, because Java.
+     */
     DefaultedList<ItemStack> getItems();
 
     /**
@@ -82,6 +84,9 @@ public interface ShelfInventory extends SidedInventory {
         return true;
     }
 
+    /**
+     * Make this inventory empty.
+     */
     @Override
     default void clear() {getItems().clear();}
 
@@ -150,6 +155,8 @@ public interface ShelfInventory extends SidedInventory {
 
     /**
      * Give me the stack that is in this slot.
+     * Not sure if this should be returning a copy or the original. I'll stick with the original for now,
+     * as I can always take a copy.
      */
     @Override
     default ItemStack getStack(int slot) {return getItems().get(slot);}
@@ -221,10 +228,7 @@ public interface ShelfInventory extends SidedInventory {
      * What slots can we insert into and extract from?
      */
     @Override
-    default int[] getAvailableSlots(Direction side){
-        // Just the book slots, sir. Side is irrelevant.
-        return getBookSlots();
-    }
+    default int[] getAvailableSlots(Direction side){return getBookSlots();}
 
     /**
      * Can I insert this item in this slot, possibly from a particular side?

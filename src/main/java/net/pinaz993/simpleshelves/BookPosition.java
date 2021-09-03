@@ -21,7 +21,8 @@ public enum BookPosition {
     DELTA_3(11, AbstractShelf.BOOK_DELTA_3);
 
 
-    public final int SLOT;
+    public final int SLOT; // The index of the slot that this book position stores books in.
+    // The property that tells the model loading system whether to load this book or not.
     public final BooleanProperty BLOCK_STATE_PROPERTY;
 
     BookPosition(int slot, BooleanProperty blockStateProperty) {
@@ -29,6 +30,10 @@ public enum BookPosition {
         this.BLOCK_STATE_PROPERTY = blockStateProperty;
     }
 
+    /** When the player uses this block, calculate which book they're clicking on.
+     * @param hit The BlockHitResult that tells you how and where the player clicked.
+     * @param facing which way the block was facing.
+     */
     public static BookPosition getBookPos (BlockHitResult hit, Direction facing) {
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), facing);
         Vec3d localCoords = hit.getPos().subtract(Vec3d.of(hit.getBlockPos()));
@@ -59,6 +64,7 @@ public enum BookPosition {
                     case WEST -> localCoords.z;
                     default -> throw new IllegalStateException("Shelves cannot face ".concat(facing.toString()).concat("."));
                 };
+                // TODO: Transition magic width numbers to enum fields.
                 // ALPHA_1 is three pixels across. Each pixel corresponds to 62.5mm, or .0625m.
                 if (u < .1875) return ALPHA_1;
                 // ALPHA_2 is one pixel across.
@@ -81,8 +87,7 @@ public enum BookPosition {
                     case WEST -> localCoords.z;
                     default -> throw new IllegalStateException("Shelves cannot face ".concat(facing.toString()).concat("."));
                 };
-                // If we're in the top half of the block...
-                if(localCoords.y > .5){
+                if(localCoords.y > .5){ // If we're in the top half of the block...
                     // ALPHA_1 is three pixels across. Again, each pixel corresponds to 62.5mm, or .0625m.
                     if (u < .1875) return ALPHA_1;
                     // ALPHA_2 is one pixel across.

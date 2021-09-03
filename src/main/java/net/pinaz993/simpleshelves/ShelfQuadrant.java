@@ -20,8 +20,8 @@ public enum ShelfQuadrant {
     GAMMA(14, new BookPosition[]{BookPosition.GAMMA_1, BookPosition.GAMMA_2, BookPosition.GAMMA_3}),
     DELTA(15, new BookPosition[]{BookPosition.DELTA_1, BookPosition.DELTA_2, BookPosition.DELTA_3});
 
-    public final int GENERIC_ITEM_SLOT;
-    public final BookPosition[] BOOK_POSITIONS;
+    public final int GENERIC_ITEM_SLOT; // The index of the slot that this quadrant uses to store generic items.
+    public final BookPosition[] BOOK_POSITIONS; // A list of all three positions in this quadrant.
 
     ShelfQuadrant(int slot, BookPosition[] bookPositions){
         this.GENERIC_ITEM_SLOT = slot;
@@ -37,7 +37,7 @@ public enum ShelfQuadrant {
      */
     public static ShelfQuadrant getQuadrant(@NotNull BlockHitResult hit, Direction facing) {
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), facing);
-        Vec3d localCoords = hit.getPos().subtract(Vec3d.of(hit.getBlockPos())); // Spits out a new Vec3d.
+        Vec3d localCoords = hit.getPos().subtract(Vec3d.of(hit.getBlockPos())); // Spits out a new Vec3d. I checked.
         // Gather 'round the Switch-Tree, one and all! We're about to have a great time.
         switch (localSide) {
             // Left Side
