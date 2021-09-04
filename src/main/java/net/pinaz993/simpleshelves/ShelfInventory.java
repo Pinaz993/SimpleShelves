@@ -222,6 +222,16 @@ public interface ShelfInventory extends SidedInventory {
         return !getStack(quadrant.GENERIC_ITEM_SLOT).isEmpty();
     }
 
+    /**
+     * Does the shelf have any generic items?
+     */
+    default boolean shelfHasGenericItem(){
+        // Iterate through all four quadrants. If any of them possess generic items, return true.
+        for(ShelfQuadrant q: ShelfQuadrant.class.getEnumConstants()) if (quadrantHasGenericItem(q)) return true;
+        // If you don't get any hits, return false.
+        return false;
+    }
+
 
     //<editor-fold desc="Sided Inventory Implementation">
     /**

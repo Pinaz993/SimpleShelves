@@ -16,15 +16,15 @@ import net.minecraft.world.World;
 
 public class ShelfEntity extends BlockEntity implements ShelfInventory {
 
-    //<editor-fold desc="Standard Inventory Boilerplate">
-
-    // The items that are in the inventory.
-    DefaultedList<ItemStack> items;
+    DefaultedList<ItemStack> items;    // The items that are in the inventory.
+    boolean hasGenericItems;   // Since I don't want to query the inventory every frame, let's set this if the block is
+                               // dirty, and refer to this every frame, which should be faster.
 
     public ShelfEntity(BlockPos pos, BlockState state) {
         super(SimpleShelves.SHELF_BLOCK_ENTITY, pos, state);
         // Initialize the list of items that are stored in this inventory.
         this.items = DefaultedList.ofSize(16, ItemStack.EMPTY);
+        this.hasGenericItems = false;
     }
 
     // Item getter provided because I couldn't figure out a way to implement the item field in ShelfInventory, but that
@@ -38,6 +38,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         Inventories.readNbt(nbt, items);
+        markDirty();
     }
 
     @Override
@@ -45,7 +46,8 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         Inventories.writeNbt(nbt, items);
         return super.writeNbt(nbt);
     }
-    //</editor-fold>
+
+    public boolean getGenericItemFlag() {return this.hasGenericItems;}
 
     // Lifted almost directly from BlockEntity. We can't get a World object from in ShelfInventory, so we have to
     // implement marking dirty here.
@@ -59,6 +61,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
      */
     protected void markDirtyInWorld(World world, BlockPos pos, BlockState state){
         // TODO: Implement inventory validation.
+        this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         // Iterate through all block positions, updating state iff needed.
         for(BookPosition bpos: BookPosition.class.getEnumConstants()){
             // What is the state now?

@@ -104,7 +104,6 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     }
     //</editor-fold>
 
-
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         ShelfEntity blockEntity;
