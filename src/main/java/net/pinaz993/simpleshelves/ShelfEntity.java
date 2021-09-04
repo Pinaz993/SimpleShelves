@@ -1,5 +1,6 @@
 package net.pinaz993.simpleshelves;
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventories;
@@ -14,7 +15,7 @@ import net.minecraft.world.World;
  * inventory stuff lives over there.
  */
 
-public class ShelfEntity extends BlockEntity implements ShelfInventory {
+public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEntityClientSerializable {
 
     DefaultedList<ItemStack> items;    // The items that are in the inventory.
     boolean hasGenericItems;   // Since I don't want to query the inventory every frame, let's set this if the block is
@@ -74,6 +75,17 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         }
         // Super calls World.markDirty() and possibly World.updateComparators().
         markDirty(world, pos, state);
+    }
+
+    @Override
+    public void fromClientTag(NbtCompound tag) {
+        // TODO: Implement this.
+    }
+
+    @Override
+    public NbtCompound toClientTag(NbtCompound tag) {
+        // TODO: Implement this as well.
+        return null;
     }
 }
 
