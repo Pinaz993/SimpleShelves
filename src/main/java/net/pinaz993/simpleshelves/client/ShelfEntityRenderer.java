@@ -22,7 +22,7 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
     @Environment(EnvType.CLIENT)
     @Override
     public void render(ShelfEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if(!entity.shelfHasGenericItem()) return; // If the shelf doesn't have a generic item in it, let's not go through all this trouble.
+        if(!entity.hasGenericItems()) return; // If the shelf doesn't have a generic item in it, let's not go through all this trouble.
         World world = entity.getWorld();
         if(world != null){ // No null pointers allowed here!
             Quaternion rotationQuaternion; // This defines the rotation we use to make sure the items end up in the right places.

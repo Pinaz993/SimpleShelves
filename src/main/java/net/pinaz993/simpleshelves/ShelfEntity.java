@@ -3,12 +3,14 @@ package net.pinaz993.simpleshelves;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * A block entity for shelves. Only contains methods that could not be implemented in ShelfInventory. Pretty much all
@@ -18,8 +20,10 @@ import net.minecraft.world.World;
 public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEntityClientSerializable {
 
     DefaultedList<ItemStack> items;    // The items that are in the inventory.
-    boolean hasGenericItems;   // Since I don't want to query the inventory every frame, let's set this if the block is
-                               // dirty, and refer to this every frame, which should be faster.
+    private boolean hasGenericItems;   // Referring to this should be faster than querying the inventory every frame.
+    public boolean hasGenericItems() { return hasGenericItems;} // Private with getter, because nothing should be
+                                                                // setting it except for markDirtyInWorld().
+
 
     public ShelfEntity(BlockPos pos, BlockState state) {
         super(SimpleShelves.SHELF_BLOCK_ENTITY, pos, state);
@@ -62,8 +66,20 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
      * Tell the world that the inventory changed, so that inventory monitoring blocks/entities can be notified.
      */
     protected void markDirtyInWorld(World world, BlockPos pos, BlockState state){
-        DefaultedList<ItemStack> stack = world.isClient() ? getItems(): null;
-        // TODO: Implement inventory validation.
+        // Verify that no quadrant has both generic items and books.
+        for(ShelfQuadrant quad: ShelfQuadrant.class.getEnumConstants())
+            if(quadrantHasGenericItem(quad) && quadrantHasBook(quad)) { // If one does...
+                world.spawnEntity(new ItemEntity(
+                    world,
+                    pos.getX() +.5, pos.getY()+1.5, pos.getZ() +.5,
+                    removeStack(quad.GENERIC_ITEM_SLOT))); // Spit the item out the top of the shelf
+                LogManager.getLogger().warn("Shelf with quadrant "
+                    .concat(quad.toString())
+                    .concat(" at ")
+                    .concat(pos.toString())
+                    .concat(" contains both book-like items and generic items.\n")
+                    .concat("Ejecting Generic item to block space above.")); // Log the anomaly.
+            }
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         // Iterate through all block positions, updating state iff needed.
         for(BookPosition bpos: BookPosition.class.getEnumConstants()){
@@ -90,5 +106,6 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
     public NbtCompound toClientTag(NbtCompound tag) {
         return writeNbt(tag);
     }
+
 }
 
