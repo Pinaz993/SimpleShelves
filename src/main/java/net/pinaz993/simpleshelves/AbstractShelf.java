@@ -27,6 +27,32 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * Abstract, because there are shelves for each type of wood, and possibly other materials.
      * As this item needs to store an inventory, a block entity has been implemented for this block. (ShelfBlockEntity).
      *
+     * One goal was to allow this shelf to boost enchantment levels. That is not happening without mixins, and I don't
+     * want to tangle with those at the moment. Maybe later, or if an API comes out.
+     *
+     * Done:
+     * Models
+     * Book Textures and Model
+     * Books render when they're on the shelves.
+     * book_like item tag
+     * Quadrants can hold books, generic items, or nothing.
+     * Use Book Insertion
+     * Use Book Extraction
+     * Use Item Insertion
+     * Use Item Extraction
+     * SidedInventory Insertion and Extraction
+     *      Only works with books
+     *      Will not insert into quadrants that have generic items
+     * Generic item rendering
+     * Inventory Syncing
+     *
+     *
+     * TODO: Comparator Behavior
+     * TODO: Redstone Book Item
+     * TODO: Analog Redstone Emission Behavior
+     * TODO: Localization in English (and possibly other languages via croudsourcing)
+     *
+     *
      * @param settings: used for super HorizontalFacingBlock
      */
 
