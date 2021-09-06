@@ -73,12 +73,9 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
                     world,
                     pos.getX() +.5, pos.getY()+1.5, pos.getZ() +.5,
                     removeStack(quad.GENERIC_ITEM_SLOT))); // Spit the item out the top of the shelf
-                LogManager.getLogger().warn("Shelf with quadrant "
-                    .concat(quad.toString())
-                    .concat(" at ")
-                    .concat(pos.toString())
-                    .concat(" contains both book-like items and generic items.\n")
-                    .concat("Ejecting Generic item to block space above.")); // Log the anomaly.
+                LogManager.getLogger().warn("Shelf quadrant " + quad + " at " + pos
+                    + " contains both book-like items and generic items. "
+                    + "Ejecting Generic item to block space above."); // Log the anomaly.
             }
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         // Iterate through all block positions, updating state iff needed.
