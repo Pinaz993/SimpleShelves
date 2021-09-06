@@ -37,7 +37,10 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+        // No call to super, because it has an empty body.
+        // The server only sends full item stacks in NBT sync messages. Thus...
+        // Clear the inventory, so that stacks that aren't sent by the server are cleared.
+        items.clear();
         Inventories.readNbt(nbt, items);
         markDirty();
     }
@@ -47,8 +50,6 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
         Inventories.writeNbt(nbt, items);
         return super.writeNbt(nbt);
     }
-
-    public boolean getGenericItemFlag() {return this.hasGenericItems;}
 
     // Lifted almost directly from BlockEntity. We can't get a World object from in ShelfInventory, so we have to
     // implement marking dirty here.
@@ -61,6 +62,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
      * Tell the world that the inventory changed, so that inventory monitoring blocks/entities can be notified.
      */
     protected void markDirtyInWorld(World world, BlockPos pos, BlockState state){
+        DefaultedList<ItemStack> stack = world.isClient() ? getItems(): null;
         // TODO: Implement inventory validation.
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         // Iterate through all block positions, updating state iff needed.
@@ -75,17 +77,18 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
         }
         // Super calls World.markDirty() and possibly World.updateComparators().
         markDirty(world, pos, state);
+        // If this is running on the server, sync to the client.
+        if(!world.isClient()) sync();
     }
 
     @Override
     public void fromClientTag(NbtCompound tag) {
-        // TODO: Implement this.
+        readNbt(tag);
     }
 
     @Override
     public NbtCompound toClientTag(NbtCompound tag) {
-        // TODO: Implement this as well.
-        return null;
+        return writeNbt(tag);
     }
 }
 
