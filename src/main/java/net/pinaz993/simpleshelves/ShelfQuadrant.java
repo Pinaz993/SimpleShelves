@@ -42,10 +42,10 @@ public enum ShelfQuadrant {
         switch (localSide) {
             // Left Side
             case LEFT:
-                return localCoords.getY() >= .5 ? ALPHA : DELTA;
+                return localCoords.getY() >= .5 ? ALPHA : GAMMA;
             // Well. That was a lot less fuss than I thought. Right side?
             case RIGHT:
-                return localCoords.getY() >= .5 ? BETA : GAMMA;
+                return localCoords.getY() >= .5 ? BETA : DELTA;
             // Now I KNOW top isn't going to be that easy. I've got x and z to deal with there. Ditto for front.
             case TOP:
                 return switch (facing) {
