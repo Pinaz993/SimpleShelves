@@ -1,0 +1,10 @@
+{
+  "block.simple_shelves.oak_shelf": "Oak Shelf",
+  "block.simple_shelves.birch_shelf" : "Birch Shelf",
+  "block.simple_shelves.jungle_shelf" : "Jungle Shelf",
+  "block.simple_shelves.spruce_shelf" : "Spruce Shelf",
+  "block.simple_shelves.acacia_shelf" : "Acacia Shelf",
+  "block.simple_shelves.dark_oak_shelf" : "Dark Oak Shelf",
+  "block.simple_shelves.crimson_shelf" : "Crimson Shelf",
+  "block.simple_shelves.warped_shelf": "Warped Shelf"
+}

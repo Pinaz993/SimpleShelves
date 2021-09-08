@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "simple_shelves:oak_shelf",
+    "simple_shelves:birch_shelf",
+    "simple_shelves:jungle_shelf",
+    "simple_shelves:spruce_shelf",
+    "simple_shelves:dark_oak_shelf",
+    "simple_shelves:acacia_shelf",
+    "simple_shelves:crimson_shelf",
+    "simple_shelves:warped_shelf"
+  ]
+}

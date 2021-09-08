@@ -45,12 +45,12 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      *      Will not insert into quadrants that have generic items
      * Generic item rendering
      * Inventory Syncing
+     * All 8 woods accounted for.
+     * Comparator Behavior
+     * Localization in English
      *
-     *
-     * TODO: Comparator Behavior
      * TODO: Redstone Book Item
      * TODO: Analog Redstone Emission Behavior
-     * TODO: Localization in English (and possibly other languages via croudsourcing)
      *
      *
      * @param settings: used for super HorizontalFacingBlock
@@ -213,6 +213,25 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         }
     }
 
+    @Override
+    public boolean hasComparatorOutput(BlockState state) {
+        return true;
+    }
+
+    /**
+     * Tells any comparator reading this block how much signal to put out.
+     * Basically just defers to the logic in ShelfInventory.
+     */
+    @Override
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+        // For some reason, either IDEA or Java won't just let use the following one-liner:
+        //return world.getBlockEntity(pos) instanceof ShelfEntity ? (ShelfEntity)world.getBlockEntity(pos).getComparatorOutput(): 0;
+        // So, I split it into two lines and it works. Don't ask me what the problem was.
+        // Get the entity, and ensure it is a ShelfEntity.
+        ShelfEntity entity = world.getBlockEntity(pos) instanceof ShelfEntity ? (ShelfEntity) world.getBlockEntity(pos): null;
+        // If it is a ShelfEntity, defer to the comparator output logic within. Otherwise, return 0.
+        return entity != null ? entity.getComparatorOutput() : 0;
+    }
 }
 
 

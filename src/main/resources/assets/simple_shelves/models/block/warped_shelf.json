@@ -1,0 +1,6 @@
+{
+  "parent": "simple_shelves:block/abstract_shelf",
+  "textures": {
+    "material": "minecraft:block/warped_planks"
+  }
+}

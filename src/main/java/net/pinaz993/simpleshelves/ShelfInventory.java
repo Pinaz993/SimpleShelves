@@ -5,7 +5,9 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -268,6 +270,28 @@ public interface ShelfInventory extends SidedInventory {
         for (int i: getBookSlots()) if(slot == i) return true;
         // Else, no.
         return false;
+    }
+
+    /**
+     * Given the inventory in this object, returns an int between 0 and 15 inclusive, indicating how full the inventory is.
+     * Considers only book-like slots. It would be possible to disregard quadrants that have generic items, but I'm on
+     * the fence as to whether to do that.
+     */
+    default int getComparatorOutput(){
+        float c = 0; // Counter
+        for(BookPosition bp: BookPosition.class.getEnumConstants()){ // For each possible book position...
+            ItemStack stack = getStack(bp.SLOT); // Grab the ItemStack in the associated slot
+            // Get the fullness ratio of that slot and add it to the counter.
+            c += (float)stack.getCount() / (float)Math.min(getMaxCountPerStack(), stack.getMaxCount());
+        }
+        // Divide the counter by the number of possible slots to get the fullness ratio for the entire shelf.
+        c /= getBookSlots().length;
+        // Return the fullness ratio multiplied by 14, then rounded down, then incremented by one.
+        // e.g.: c = .95 (shelf is almost full of books) -> 1 * 14 (13.3) floored (13) + 1 = 14.
+        // Rounding down ensures that only full inventories produce the strongest signals.
+        // Adding one ensures that only empty inventories fail to output a signal at all.
+        return MathHelper.floor(c * 14f) + 1;
+
     }
     //</editor-fold>
 
