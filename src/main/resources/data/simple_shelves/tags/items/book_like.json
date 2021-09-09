@@ -3,6 +3,7 @@
   "values": [
     "#minecraft:lectern_books",
     "minecraft:book",
-    "minecraft:enchanted_book"
+    "minecraft:enchanted_book",
+    "simple_shelves:redstone_book"
   ]
 }
