@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -23,6 +24,8 @@ public class SimpleShelves implements ModInitializer {
     public static final DarkOakShelf DARK_OAK_SHELF = new DarkOakShelf(WOOD_SHELF_SETTINGS);
     public static final CrimsonShelf CRIMSON_SHELF = new CrimsonShelf(WOOD_SHELF_SETTINGS);
     public static final WarpedShelf WARPED_SHELF = new WarpedShelf(WOOD_SHELF_SETTINGS);
+    public static final Item REDSTONE_BOOK = new RedstoneBookItem(
+            new FabricItemSettings().group(ItemGroup.REDSTONE).maxCount(15));
     public static BlockEntityType<ShelfEntity> SHELF_BLOCK_ENTITY;
 
     @Override
@@ -55,7 +58,10 @@ public class SimpleShelves implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("simple_shelves", "warped_shelf"), //WARPED SHELF
                 new BlockItem(WARPED_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
 
-        //Register BlockEntity
+        // Register Items
+        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "redstone_book"), REDSTONE_BOOK);
+
+        // Register BlockEntity
         SHELF_BLOCK_ENTITY = Registry.register(
                 Registry.BLOCK_ENTITY_TYPE, "simple_shelves:shelf_block_entity",
                 FabricBlockEntityTypeBuilder.create(ShelfEntity::new,
