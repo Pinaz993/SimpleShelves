@@ -1,0 +1,21 @@
+{
+  "_comment": "Unusable at this time, as recipes don't support inheritance for some reason.",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FS ",
+    "F  ",
+    "FS "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:_planks"
+    },
+    "S": {
+      "item": "minecraft:_slab"
+    }
+  },
+  "result": {
+    "item": "simple_shelves:_shelf",
+    "count": 4
+  }
+}

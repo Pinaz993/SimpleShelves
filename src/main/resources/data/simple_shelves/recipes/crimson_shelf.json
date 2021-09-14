@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FS ",
+    "F  ",
+    "FS "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:crimson_planks"
+    },
+    "S": {
+      "item": "minecraft:crimson_slab"
+    }
+  },
+  "result": {
+    "item": "simple_shelves:crimson_shelf",
+    "count": 4
+  }
+}
