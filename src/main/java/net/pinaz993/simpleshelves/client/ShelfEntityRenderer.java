@@ -60,14 +60,19 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
     {
         matrices.push(); // Obligatory, for OpenGL calls of any kind. I have only vague ideas of why.
         matrices.translate(.5, .5, .5); // Move to the middle of the block before rotating.
-        matrices.multiply(rotationQuaternion); // Rotate to make the stack matches with the direction the shelf is facing.
+        // Rotate to make the stack matches with the direction the shelf is facing.
+        matrices.multiply(rotationQuaternion);
         matrices.translate(-.5, -.5, -.5); // Move back to 0,0,0.
         matrices.translate(x, y, .25); // Translate to the position this quadrant occupies.
-        ItemRenderer renderer = MinecraftClient.getInstance().getItemRenderer(); // Grab the renderer from the instance;
-        // If this is a block that renders as a block scale to 75%.
-        if(renderer.getHeldItemModel(stack, null, null, 0).hasDepth()) matrices.scale(.75f, .75f, .75f);
+        ItemRenderer renderer = MinecraftClient.getInstance().getItemRenderer(); // Grab the item renderer. (SINGLETON!)
+        // If this is a block that renders as a block:
+        if(renderer.getHeldItemModel(stack, null, null, 0).hasDepth())
+            matrices.scale(.75f, .75f, .75f); // Scale to 75%.
         else matrices.scale(.375f, .375f, .375f); // Otherwise scale to 35.7%
-        renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0); // Actually render the item.
+        // Rotate 180 degrees to make block or item face properly outward.
+        matrices.multiply(new Quaternion(new Vec3f(0, 1, 0), 180, true));
+        // Actually render the item.
+        renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
         matrices.pop(); // We're done with this matrix entry (whatever that entails).
     }
 }

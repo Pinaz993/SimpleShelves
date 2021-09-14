@@ -49,8 +49,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * All 8 woods accounted for.
      * Comparator Behavior
      * Localization in English
-     *
-     * TODO: Analog Redstone Emission Behavior
+     * Analog Redstone Emission Behavior
      *
      *
      * @param settings: used for super HorizontalFacingBlock
