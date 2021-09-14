@@ -11,7 +11,7 @@
     "website": "mods.pinaz993.net"
   },
   "license": "MIT",
-  "icon": "assets/simple-shelves/icon.png",
+  "icon": "assets/simple_shelves/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
