@@ -1,5 +1,6 @@
 package net.pinaz993.simpleshelves;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
@@ -8,6 +9,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -131,7 +133,7 @@ public interface ShelfInventory extends SidedInventory {
         else if (oldStack.isStackable() && oldStack.isItemEqual(newStack) && oldStack.getCount() < oldStack.getMaxCount()) {
             // If so, try to insert the new stack on top of the old stack.
             // Can the new stack completely stack with the old stack?
-            if (newStack.getCount() >= oldStack.getMaxCount() - oldStack.getCount()) {
+            if (newStack.getCount() <= oldStack.getMaxCount() - oldStack.getCount()) {
                 // If so, combine the two stacks and return an empty stack.
                 oldStack.setCount(oldStack.getCount() + newStack.getCount());
                 // We changed items. Update the looks of the block.
@@ -293,6 +295,5 @@ public interface ShelfInventory extends SidedInventory {
         return MathHelper.floor(c * 14f) + 1;
 
     }
-    //</editor-fold>
 
 }

@@ -7,6 +7,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -18,6 +19,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say.
 public abstract class AbstractShelf extends HorizontalFacingBlock implements BlockEntityProvider {
@@ -49,7 +51,6 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * Comparator Behavior
      * Localization in English
      *
-     * TODO: Redstone Book Item
      * TODO: Analog Redstone Emission Behavior
      *
      *
@@ -82,19 +83,19 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     // every single book slot, because OpenGL is scary, and block states are nice and safe.
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
-        stateManager.add(Properties.HORIZONTAL_FACING);
-        stateManager.add(BOOK_ALPHA_1);
-        stateManager.add(BOOK_ALPHA_2);
-        stateManager.add(BOOK_ALPHA_3);
-        stateManager.add(BOOK_BETA_1);
-        stateManager.add(BOOK_BETA_2);
-        stateManager.add(BOOK_BETA_3);
-        stateManager.add(BOOK_GAMMA_1);
-        stateManager.add(BOOK_GAMMA_2);
-        stateManager.add(BOOK_GAMMA_3);
-        stateManager.add(BOOK_DELTA_1);
-        stateManager.add(BOOK_DELTA_2);
-        stateManager.add(BOOK_DELTA_3);
+        stateManager.add(Properties.HORIZONTAL_FACING,
+                BOOK_ALPHA_1,
+                BOOK_ALPHA_2,
+                BOOK_ALPHA_3,
+                BOOK_BETA_1,
+                BOOK_BETA_2,
+                BOOK_BETA_3,
+                BOOK_GAMMA_1,
+                BOOK_GAMMA_2,
+                BOOK_GAMMA_3,
+                BOOK_DELTA_1,
+                BOOK_DELTA_2,
+                BOOK_DELTA_3);
     }
 
     public BlockState getPlacementState(ItemPlacementContext ctx) {
@@ -148,75 +149,69 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING));
         // If it was the bottom or back, no dice.
         if (localSide == LocalHorizontalSide.BACK || localSide == LocalHorizontalSide.BOTTOM) return ActionResult.PASS;
-        // Which quadrant?
-        ShelfQuadrant quadrant = ShelfQuadrant.getQuadrant(hit, state.get(FACING));
-        // What's in the player's main hand?
-        ItemStack activeStack = player.getMainHandStack();
-        // Is the player's main hand empty?
-        if (activeStack.isEmpty()) {
+        ShelfQuadrant quadrant = ShelfQuadrant.getQuadrant(hit, state.get(FACING)); // Which quadrant?
+        ItemStack activeStack = player.getMainHandStack(); // What's in the player's main hand?
+        if (activeStack.isEmpty()) { // Is the player's main hand empty?
             // If so, try to extract an item from the shelf.
-            // Does the current quadrant have a stack?
-            if(blockEntity.quadrantHasGenericItem(quadrant)){
+            if(blockEntity.quadrantHasGenericItem(quadrant)){ // Does the current quadrant have a generic stack?
                 // Spawn that item in the world as an item entity in the location of the player that right clicked.
                 ItemScatterer.spawn(world,
                         player.getX(), player.getY(), player.getZ(),
                         blockEntity.removeStack(quadrant.GENERIC_ITEM_SLOT));
-                // Something was done.
-                return ActionResult.SUCCESS;
+                return ActionResult.SUCCESS; // Something was done.
             }
-            // Which book slot?
-            BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING));
-            // Does that book position have a stack in it?
-            if (!blockEntity.getStack(bookPosition.SLOT).isEmpty()){
+            BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING)); // Which book slot?
+            if (!blockEntity.getStack(bookPosition.SLOT).isEmpty()){ // Does that book position have a stack in it?
                 // Spawn that item in the world as an item entity in the location of the player that right clicked.
                 ItemScatterer.spawn(world,
                         player.getX(), player.getY(), player.getZ(),
                         blockEntity.removeStack(bookPosition.SLOT));
-                return ActionResult.SUCCESS;
+                return ActionResult.SUCCESS; // Something was done.
             }
         }
-        // Is the player holding a book-like item?
-        if(ShelfInventory.isBookLike(activeStack)){
+        if(ShelfInventory.isBookLike(activeStack)){ // Is the player holding a book-like item?
             // If so, try to insert it into the appropriate book slot.
             // If the quadrant the player clicked on has a generic item in it, the action fails, full stop.
             if (blockEntity.quadrantHasGenericItem(quadrant)) return ActionResult.FAIL;
-            // Which book slot?
-            BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING));
-            // Defer to the logic in ShelfInventory.attemptInsertion. Place the result of that method in the player's selected slot.
+            BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING)); // Which book slot?
+            // Defer to the logic in ShelfInventory.attemptInsertion.
+            // Place the result of that method in the player's selected slot.
             player.getInventory().setStack(player.getInventory().selectedSlot,
                     blockEntity.attemptInsertion(bookPosition.SLOT, activeStack));
-            // An action was carried out.
+            return ActionResult.SUCCESS; // Something was done.
         }
-        // The player's hand isn't empty, and it doesn't have a book-like object in it. Treat the stack as generic.
-        else {
+        else { // The player's hand isn't empty, and it doesn't have a book-like object in it.
+            // Treat the stack as generic.
             // If the quadrant the player clicked on has books, the action fails, full stop.
             if (blockEntity.quadrantHasBook(quadrant)) return ActionResult.FAIL;
-            // Defer to the logic in ShelfInventory.attemptInsertion. Place the result of that method in the player's selected slot.
+            // Defer to the logic in ShelfInventory.attemptInsertion.
+            // Place the result of that method in the player's selected slot.
             player.getInventory().setStack(player.getInventory().selectedSlot,
                     blockEntity.attemptInsertion(quadrant.GENERIC_ITEM_SLOT, activeStack));
-            // An action was carried out.
+            // markDirty() won't trigger observers unless world.setBlockState() is called with NOTIFY_LISTENERS set.
+            // Since that doesnt happen with generic items, manually do that here, so that we trigger any observers.
+            return ActionResult.SUCCESS; // Something was done.
         }
-        return ActionResult.SUCCESS;
-
     }
 
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity be = world.getBlockEntity(pos);
-            if(be instanceof ShelfEntity){
-                ItemScatterer.spawn(world, pos, (ShelfEntity)be);
-                // Update all adjacent blocks, like comparators.
-                world.updateNeighbors(pos, this);
+        if (state.getBlock() != newState.getBlock()) { // If the block type has changed
+            BlockEntity be = world.getBlockEntity(pos); // Get the block entity.
+            if(be instanceof ShelfEntity){ // If the entity is what we expect it to be...
+                // Don't know why it wouldn't be, TBH. Monkey See, Monkey Do.
+                ItemScatterer.spawn(world, pos, (ShelfEntity)be); // Drop the inventory as entities in the world.
+                world.updateNeighbors(pos, this); // Update all adjacent blocks...
+                world.updateComparators(pos, this); // and comparators (which might not be adjacent).
             }
             super.onStateReplaced(state, world, pos,newState, moved);
         }
     }
 
+    //<editor-fold desc="Redstone Stuff">
+
     @Override
-    public boolean hasComparatorOutput(BlockState state) {
-        return true;
-    }
+    public boolean hasComparatorOutput(BlockState state) {return true;}
 
     /**
      * Tells any comparator reading this block how much signal to put out.
@@ -232,8 +227,29 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         // If it is a ShelfEntity, defer to the comparator output logic within. Otherwise, return 0.
         return entity != null ? entity.getComparatorOutput() : 0;
     }
+
+    @Override
+    public boolean emitsRedstonePower(BlockState state) { return true; } // Yes, it does emit redstone power.
+
+    @Override
+    public int getStrongRedstonePower(@NotNull BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        // Power only comes from the back of the block. If the direction is the back...
+        // Yes, this says FRONT. It's counterintuitive, I know. I don't know what's going on behind the scenes, I just
+        // know that this works.
+        if(LocalHorizontalSide.getLocalSide(direction, state.get(FACING)) == LocalHorizontalSide.FRONT) {
+            ShelfEntity entity = (ShelfEntity) world.getBlockEntity(pos);
+            assert (entity != null);
+            return entity.getRedstoneValue();
+        }
+        else return 0;
+    }
+
+    @Override
+    public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        return getStrongRedstonePower(state, world, pos, direction); // Weak power is the same as strong power.
+    }
+
+    //</editor-fold>
+
+
 }
-
-
-
-

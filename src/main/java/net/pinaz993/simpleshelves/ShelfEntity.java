@@ -23,6 +23,8 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
     private boolean hasGenericItems;   // Referring to this should be faster than querying the inventory every frame.
     public boolean hasGenericItems() { return hasGenericItems;} // Private with getter, because nothing should be
                                                                 // setting it except for markDirtyInWorld().
+    private int redstoneValue; // Cached value so we don't have to query the inventory for every redstone update.
+    public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
 
 
     public ShelfEntity(BlockPos pos, BlockState state) {
@@ -30,6 +32,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
         // Initialize the list of items that are stored in this inventory.
         this.items = DefaultedList.ofSize(16, ItemStack.EMPTY);
         this.hasGenericItems = false;
+        this.redstoneValue = 0;
     }
 
     // Item getter provided because I couldn't figure out a way to implement the item field in ShelfInventory, but that
@@ -69,40 +72,40 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
         // Verify that no quadrant has both generic items and books.
         for(ShelfQuadrant quad: ShelfQuadrant.class.getEnumConstants())
             if(quadrantHasGenericItem(quad) && quadrantHasBook(quad)) { // If one does...
-                world.spawnEntity(new ItemEntity(
-                    world,
+                world.spawnEntity(new ItemEntity(world,
                     pos.getX() +.5, pos.getY()+1.5, pos.getZ() +.5,
-                    removeStack(quad.GENERIC_ITEM_SLOT))); // Spit the item out the top of the shelf
+                    removeStack(quad.GENERIC_ITEM_SLOT))); // Spit the generic item out the top of the shelf.
                 LogManager.getLogger().warn("Shelf quadrant " + quad + " at " + pos
                     + " contains both book-like items and generic items. "
                     + "Ejecting Generic item to block space above."); // Log the anomaly.
             }
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
+        this.redstoneValue = 0; // Reset the redstone value.
         // Iterate through all block positions, updating state iff needed.
-        for(BookPosition bpos: BookPosition.class.getEnumConstants()){
-            // What is the state now?
-            boolean oldState = state.get(bpos.BLOCK_STATE_PROPERTY);
-            // Is the associated slot empty?
-            boolean newState = !this.getItems().get(bpos.SLOT).isEmpty();
+        for(BookPosition bp: BookPosition.class.getEnumConstants()){
+            boolean oldState = state.get(bp.BLOCK_STATE_PROPERTY); // What is the state now?
+            ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
+            boolean newState = !stack.isEmpty(); // Is the associated slot empty?
             // If the old state is different than the new state, tell the world to update the state to the new one.
             // I don't just update all of them because I don't know how intensive that is, and I don't want to lag.
-            if(oldState != newState) world.setBlockState(pos, state.with(bpos.BLOCK_STATE_PROPERTY, newState));
+            if(oldState != newState) world.setBlockState(pos, state.with(bp.BLOCK_STATE_PROPERTY, newState));
+            // If the stack is of redstone books, update redstone value if this is higher than what we've seen thus far.
+            if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
+                this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
         }
         // Super calls World.markDirty() and possibly World.updateComparators().
-        markDirty(world, pos, state);
-        // If this is running on the server, sync to the client.
-        if(!world.isClient()) sync();
+        BlockEntity.markDirty(world, pos, state);
+        if(!world.isClient()) { // If this is running on the server...
+            world.updateNeighbors(pos, state.getBlock()); // Update all the neighbors.
+            sync(); // Sync to the client.
+        }
     }
 
     @Override
-    public void fromClientTag(NbtCompound tag) {
-        readNbt(tag);
-    }
+    public void fromClientTag(NbtCompound tag) {readNbt(tag);}
 
     @Override
-    public NbtCompound toClientTag(NbtCompound tag) {
-        return writeNbt(tag);
-    }
+    public NbtCompound toClientTag(NbtCompound tag) {return writeNbt(tag);}
 
 }
 
