@@ -1,44 +1,52 @@
 package net.pinaz993.simpleshelves;
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
 
-import static net.pinaz993.simpleshelves.SimpleShelves.SHELF_BLOCK_ENTITY;
-
 /**
  * A block entity for shelves. Only contains methods that could not be implemented in ShelfInventory. Pretty much all
  * inventory stuff lives over there.
  */
 
-public class ShelfEntity extends BlockEntity implements ShelfInventory {
+public class ShelfEntity extends BlockEntity
+        implements ShelfInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity {
 
     DefaultedList<ItemStack> items;    // The items that are in the inventory.
     private boolean hasGenericItems;   // Referring to this should be faster than querying the inventory every frame.
     public boolean hasGenericItems() { return hasGenericItems;} // Private with getter, because nothing should be
                                                                 // setting it except for markDirtyInWorld().
+    private final boolean[] bookSlotsOccupied; // Boolean to be passed to the model baker.
+                                               // Will only be updated when the block is marked dirty.
     private int redstoneValue; // Cached value so we don't have to query the inventory for every redstone update.
     public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
 
 
     public ShelfEntity(BlockPos pos, BlockState state) {
-        super(SHELF_BLOCK_ENTITY, pos, state);
+        super(SimpleShelves.SHELF_BLOCK_ENTITY, pos, state);
         // Initialize the list of items that are stored in this inventory.
         this.items = DefaultedList.ofSize(16, ItemStack.EMPTY);
+        // Shelf is empty, so no generic items to render.
         this.hasGenericItems = false;
+        // No redstone signal at the moment.
         this.redstoneValue = 0;
+        // All book slots are empty upon creation.
+        this.bookSlotsOccupied = new boolean[]{
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false
+        };
     }
 
     // Item getter provided because I couldn't figure out a way to implement the item field in ShelfInventory, but that
@@ -59,23 +67,9 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, items);
-    }
-
-    /**
-     * Serializes the state of this block entity. I don't know if I need the id, x, y, and z, but ultimately, they're
-     * not all that much to put in the NBT, and better safe than sorry. Can be used for saving and syncing.
-     * @return The state of this block entity in NBT form.
-     */
-    public NbtCompound toNbt(){
-        NbtCompound rtn = new NbtCompound();
-        Inventories.writeNbt(rtn, items);
-        rtn.putString("id", BlockEntityType.getId(SHELF_BLOCK_ENTITY).toString());
-        rtn.putInt("x", this.pos.getX());
-        rtn.putInt("y", this.pos.getY());
-        rtn.putInt("z", this.pos.getZ());
-        return rtn;
+        return super.writeNbt(nbt);
     }
 
     // Lifted almost directly from BlockEntity. We can't get a World object from in ShelfInventory, so we have to
@@ -101,15 +95,13 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
             }
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         this.redstoneValue = 0; // Reset the redstone value.
-        // Iterate through all block positions, updating state iff needed.
-        for(BookPosition bp: BookPosition.class.getEnumConstants()){
-            boolean oldState = state.get(bp.BLOCK_STATE_PROPERTY); // What is the state now?
-            ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
-            boolean newState = !stack.isEmpty(); // Is the associated slot empty?
-            // If the old state is different than the new state, tell the world to update the state to the new one.
-            // I don't just update all of them because I don't know how intensive that is, and I don't want to lag.
-            if(oldState != newState) world.setBlockState(pos, state.with(bp.BLOCK_STATE_PROPERTY, newState));
-            // If the stack is of redstone books, update redstone value if this is higher than what we've seen thus far.
+        // Iterate through all block positions, updating this.bookSlotsOccupied and redstone value if needed.
+        for(BookPosition bp: BookPosition.class.getEnumConstants()) {
+            // Grab the stack for this book pos.
+            ItemStack stack = getStack(bp.SLOT);
+            // Update the boolean for this pos. If it's empty, then the boolean should be false.
+            this.bookSlotsOccupied[bp.SLOT] = !stack.isEmpty();
+            // Redstone book? Update the redstone value for the shelf.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
         }
@@ -117,17 +109,20 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         BlockEntity.markDirty(world, pos, state);
         if(!world.isClient()) { // If this is running on the server...
             world.updateNeighbors(pos, state.getBlock()); // Update all the neighbors.
-            // Sync to the client.
+            sync(); // Sync to the client.
         }
     }
 
-    @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(
-                this,
-                (BlockEntity b) -> this.toNbt()
-        );
-    }
+    public void fromClientTag(NbtCompound tag) {readNbt(tag);}
+
+    @Override
+    public NbtCompound toClientTag(NbtCompound tag) {return writeNbt(tag);}
+
+    /**
+     * For passing information to the model to tell it which books to render.
+     */
+    @Override
+    public @Nullable Object getRenderAttachmentData() {return this.bookSlotsOccupied;}
 }
 
