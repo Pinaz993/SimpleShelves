@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-@SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say. Again.
 public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
     // TODO: I still don't know what a mesh is.
@@ -33,7 +32,7 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
     @Override
     public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
-        // TODO: Grab texture dependencies from constituent BookModels.
+        // TODO: When is this run? At launch, or just before the model is baked?
     }
 
     @Nullable

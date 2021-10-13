@@ -28,7 +28,7 @@ public enum BookPosition {
     BookPosition(int slot, int pixels) {
         this.SLOT = slot;
         this.PIXELS = pixels;
-        this.WIDTH = pixels *.0625;
+        this.WIDTH = (double) pixels / 16;
     }
 
     /** When the player uses this block, calculate which book they're clicking on.
