@@ -6,7 +6,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -60,20 +59,6 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
         setDefaultState(this.stateManager.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH));
     }
 
-    // Boolean properties for each book slot. Short of learning OpenGL, this is as elegant a solution as I could come up with.
-    public static final BooleanProperty BOOK_ALPHA_1 = BooleanProperty.of("book_alpha_1");
-    public static final BooleanProperty BOOK_ALPHA_2 = BooleanProperty.of("book_alpha_2");
-    public static final BooleanProperty BOOK_ALPHA_3 = BooleanProperty.of("book_alpha_3");
-    public static final BooleanProperty BOOK_BETA_1 = BooleanProperty.of("book_beta_1");
-    public static final BooleanProperty BOOK_BETA_2 = BooleanProperty.of("book_beta_2");
-    public static final BooleanProperty BOOK_BETA_3 = BooleanProperty.of("book_beta_3");
-    public static final BooleanProperty BOOK_GAMMA_1 = BooleanProperty.of("book_gamma_1");
-    public static final BooleanProperty BOOK_GAMMA_2 = BooleanProperty.of("book_gamma_2");
-    public static final BooleanProperty BOOK_GAMMA_3 = BooleanProperty.of("book_gamma_3");
-    public static final BooleanProperty BOOK_DELTA_1 = BooleanProperty.of("book_delta_1");
-    public static final BooleanProperty BOOK_DELTA_2 = BooleanProperty.of("book_delta_2");
-    public static final BooleanProperty BOOK_DELTA_3 = BooleanProperty.of("book_delta_3");
-
 
     //<editor-fold desc="Horizontal Orientation, Placement, and Collision Region">
     // This block can be set down in four horizontal orientations, depending on where the player is facing when it is
@@ -81,37 +66,11 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     // every single book slot, because OpenGL is scary, and block states are nice and safe.
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
-        stateManager.add(Properties.HORIZONTAL_FACING,
-                BOOK_ALPHA_1,
-                BOOK_ALPHA_2,
-                BOOK_ALPHA_3,
-                BOOK_BETA_1,
-                BOOK_BETA_2,
-                BOOK_BETA_3,
-                BOOK_GAMMA_1,
-                BOOK_GAMMA_2,
-                BOOK_GAMMA_3,
-                BOOK_DELTA_1,
-                BOOK_DELTA_2,
-                BOOK_DELTA_3);
+        stateManager.add(Properties.HORIZONTAL_FACING);
     }
 
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        // Have to admit, being able to insert a line break before a dot call is pretty nice in this case.
-        return this.getDefaultState()
-                .with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite())
-                .with(BOOK_ALPHA_1, false)
-                .with(BOOK_ALPHA_2, false)
-                .with(BOOK_ALPHA_3, false)
-                .with(BOOK_BETA_1, false)
-                .with(BOOK_BETA_2, false)
-                .with(BOOK_BETA_3, false)
-                .with(BOOK_GAMMA_1, false)
-                .with(BOOK_GAMMA_2, false)
-                .with(BOOK_GAMMA_3, false)
-                .with(BOOK_DELTA_1, false)
-                .with(BOOK_DELTA_2, false)
-                .with(BOOK_DELTA_3, false);
+        return this.getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getPlayerFacing().getOpposite());
     }
 
     // A shelf only takes up half a block. If the block is facing south, it takes up the north half of the block, and

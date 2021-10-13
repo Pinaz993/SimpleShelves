@@ -7,29 +7,27 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public enum BookPosition {
-    ALPHA_1(0, AbstractShelf.BOOK_ALPHA_1, 3),
-    ALPHA_2(1, AbstractShelf.BOOK_ALPHA_2, 1),
-    ALPHA_3(2, AbstractShelf.BOOK_ALPHA_3, 4),
-    BETA_1(3, AbstractShelf.BOOK_BETA_1, 2),
-    BETA_2(4, AbstractShelf.BOOK_BETA_2, 3),
-    BETA_3(5, AbstractShelf.BOOK_BETA_3, 3),
-    GAMMA_1(6, AbstractShelf.BOOK_GAMMA_1, 3),
-    GAMMA_2(7, AbstractShelf.BOOK_GAMMA_2, 2),
-    GAMMA_3(8, AbstractShelf.BOOK_GAMMA_3, 3),
-    DELTA_1(9, AbstractShelf.BOOK_DELTA_1, 2),
-    DELTA_2(10, AbstractShelf.BOOK_DELTA_2, 4),
-    DELTA_3(11, AbstractShelf.BOOK_DELTA_3, 2);
+    ALPHA_1(0, 3),
+    ALPHA_2(1, 1),
+    ALPHA_3(2, 4),
+    BETA_1(3, 2),
+    BETA_2(4, 3),
+    BETA_3(5, 3),
+    GAMMA_1(6, 3),
+    GAMMA_2(7, 2),
+    GAMMA_3(8,  3),
+    DELTA_1(9,  2),
+    DELTA_2(10, 4),
+    DELTA_3(11, 2);
 
 
     public final int SLOT; // The index of the slot that this book position stores books in.
-    // The property that tells the model loading system whether to load this book or not.
-    public final BooleanProperty BLOCK_STATE_PROPERTY;
-    // How wide this book is.
-    public final double WIDTH;
+    public final int PIXELS; // How wide this book is in pixels (1/16th of a meter).
+    public final double WIDTH; // How wide this book is in meters.
 
-    BookPosition(int slot, BooleanProperty blockStateProperty, int pixels) {
+    BookPosition(int slot, int pixels) {
         this.SLOT = slot;
-        this.BLOCK_STATE_PROPERTY = blockStateProperty;
+        this.PIXELS = pixels;
         this.WIDTH = pixels *.0625;
     }
 
