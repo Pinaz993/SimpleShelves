@@ -21,7 +21,7 @@ public enum ShelfQuadrant {
     DELTA(15, new BookPosition[]{BookPosition.DELTA_1, BookPosition.DELTA_2, BookPosition.DELTA_3});
 
     public final int GENERIC_ITEM_SLOT; // The index of the slot that this quadrant uses to store generic items.
-    public final BookPosition[] BOOK_POSITIONS; // A list of all three positions in this quadrant.
+    public final BookPosition[] BOOK_POSITIONS; // A list of all three positions in this quadrant, in LtR order.
 
     ShelfQuadrant(int slot, BookPosition[] bookPositions){
         this.GENERIC_ITEM_SLOT = slot;

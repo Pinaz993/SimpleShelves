@@ -1,24 +1,25 @@
 package net.pinaz993.simpleshelves.client;
 
+import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.pinaz993.simpleshelves.BookPosition;
+import net.pinaz993.simpleshelves.ShelfQuadrant;
 
 import java.util.Random;
+import java.util.function.Function;
+
+import static net.minecraft.util.math.MathHelper.abs;
 
 @SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say. Again.
 public class BookModel {
     // I think I want to delegate generating the quads for the books to here. This way, when the ShelfEntity is
     // constructed, I can just make 12 of these and either include their quads in the baked model or not.
     // The position the book is in will determine it's width, but it's height and depth are flexible. Fields for those.
-
-    // When the quads that need to be rendered are determined, their positions will be based on their position in the
-    // shelf. I don't know how rectangles are drawn in this system, but I'm guessing that I'll need at least two points.
-    // Thus, the position and shape of each quad will be determined by the position of the points that define it.
-    // Depending on what points I need to define a quad, I'll need to calculate those upon construction.
-    // Probably need fields for those.
 
     // I'll also need an extra bit of information that tells the quad in which direction it can be seen. That will be a
     // static class variable for each of the four quads that need to be rendered: SPINE, REAR_COVER, FRONT_COVER, and
@@ -28,10 +29,6 @@ public class BookModel {
     // I'll also handle keeping track of the textures in here. Fields for the IDs of the textures to be used for each
     // book, as well as static arrays for all of the texture names, because that info does not belong in ShelfEntity or
     // ShelfModel.
-
-    // TODO: Determine what information will need to be present in this class to render the four quads.
-    // The origin for the block is at the North-West bottom corner of the block, or at the bottom rear left corner of
-    // the shelf, at least according to block bench.
 
     // Arrays of strings for identifying textures.
     public static final String[] ONE_PX_TEXTURE_NAMES = new String[] {
@@ -66,7 +63,7 @@ public class BookModel {
      * @param random: An RNG seeded with the world seed and the shelf's block position.
      * @return The sprite identifier for a texture that will be used, either for the cover of the book, or its head.
      */
-    public static SpriteIdentifier getRandomSpriteIdentifier(int list, Random random) {
+    public static SpriteIdentifier getRandomSprite(int list, Random random) {
         String[] names;
         names = switch (list) {
             case 0 -> PAPER_TEXTURE_NAMES;
@@ -98,20 +95,104 @@ public class BookModel {
     public static final float MIN_DEPTH = (float) 6 / 16;
     public static final float MAX_DEPTH = (float) 7 / 16;
 
+    // The Z coordinate of the front surface of the rear plate of the shelf. This is as low in Z as a vertex can be.
+    public static final float Z_BACK_STOP = (float) 1 / 16;
+
 
     public final BookPosition BOOK_POSITION; // The position this Book Model will correspond to. Will determine the
                                              // width of the model itself.
     public final float HEIGHT; // The height of the book, as determined by a random seed depending on the coordinates
-                                // of the block and the seed of the world.
+                               // of the block and the seed of the world. Calculated to be on the correct shelf at
+                               // object creation.
+    public final float SHELF; // The height of the bottom of the book. Calculated to land on the correct shelf at object
+                              // creation.
     public final float DEPTH; // The depth of the book, as determined in the same way as above.
 
-    public final SpriteIdentifier COVER_SPRITE_ID; // The ID for the texture that will be applied to the REAR_COVER,
-                                                   // SPINE, and FRONT_COVER quads.
+    private final SpriteIdentifier HEAD; // The texture to use for the head quad.
+    private final SpriteIdentifier COVER; // The texture to use for the rear cover, spine, and front cover quads.
 
-    public final SpriteIdentifier HEAD_SPRITE_ID; // The ID for the texture that will be applied to the HEAD quad.
+    private final int HEAD_HORIZONTAL_OFFSET;
+
+    public BookModel(BookPosition bookPosition, Random random){
+        this.BOOK_POSITION = bookPosition;
+        // Is the book on the top shelf?
+        boolean topShelf = BOOK_POSITION.getQuadrant() == ShelfQuadrant.ALPHA || BOOK_POSITION.getQuadrant() == ShelfQuadrant.BETA;
+        // Calculate a random height between MIN_HEIGHT and MAX_HEIGHT. Add .5 if the book is on the top shelf.
+        this.HEIGHT = MIN_HEIGHT * random.nextFloat() * (MAX_HEIGHT-MIN_HEIGHT) + (topShelf ? .5f : 0f);
+        // Set the height of SHELF.
+        this.SHELF = topShelf ? 8f / 16f: 1f / 16f;
+        // Calculate a random depth between MIN_DEPTH and MAX_DEPTH.
+        this.DEPTH = MIN_DEPTH * random.nextFloat() * (MAX_DEPTH-MIN_DEPTH);
+        // Calculate a horizontal offset for the head texture.
+        this.HEAD_HORIZONTAL_OFFSET = abs(random.nextInt() % (32-BOOK_POSITION.PIXELS));
+        // Grab random textures. HEAD, from the paper textures:
+        this.HEAD = getRandomSprite(0, random);
+        // and COVER, from the appropriate cover textures.
+        this.COVER = getRandomSprite(BOOK_POSITION.PIXELS, random);
+
+    }
 
     // TODO: Implement constructor.
 
-    // TODO: Implement a method that returns a baked or unbaked model for the book.
-    // This model will be included in the final baked model for the shelf.
+    // Instead of trying to return a model, I'll simply get a method that takes in the emitter and returns nothing.
+    // That way, I can simply tell the emitter to emit at the decided upon points and emit the quads, and be confident
+    // that the book will be rendered.
+
+    public void drawBook(QuadEmitter e, Function<SpriteIdentifier, Sprite> tg) {
+        // TODO: Make the quads visible only from the correct side, if possible.
+        // Get the sprites.
+        Sprite head = tg.apply(HEAD);
+        Sprite cover = tg.apply(COVER);
+        // Draw the head quad.
+        e.pos(0, BOOK_POSITION.getLeftEdge(), HEIGHT, Z_BACK_STOP);
+        e.pos(1, BOOK_POSITION.getRightEdge(), HEIGHT, Z_BACK_STOP);
+        e.pos(2, BOOK_POSITION.getRightEdge(), HEIGHT, DEPTH);
+        e.pos(3, BOOK_POSITION.getLeftEdge(), HEIGHT, DEPTH);
+        // Now that we've designated all four corners of the book, we need to set the sprite position for each vertex.
+        // Calculate a random horizontal offset for the page texture. Don't go over the edge of the texture.
+        e.sprite(0, 0, HEAD_HORIZONTAL_OFFSET, 0);
+        e.sprite(1, 0, HEAD_HORIZONTAL_OFFSET + BOOK_POSITION.PIXELS, 0);
+        // The texture dimensions don't change with the random sizing of the books. This causes the texture to be scaled
+        // along with the book model.
+        e.sprite(2, 0, HEAD_HORIZONTAL_OFFSET + BOOK_POSITION.PIXELS, 7);
+        e.sprite(3, 0, HEAD_HORIZONTAL_OFFSET, 7);
+        // Apply the texture and emit.
+        e.spriteBake(0, head, MutableQuadView.BAKE_ROTATE_NONE).emit();
+        // Now we render the rear cover. Vertex coordinates:
+        e.pos(0, BOOK_POSITION.getLeftEdge(), HEIGHT, Z_BACK_STOP);
+        e.pos(1, BOOK_POSITION.getLeftEdge(), HEIGHT, DEPTH);
+        e.pos(2, BOOK_POSITION.getLeftEdge(), SHELF, DEPTH);
+        e.pos(3, BOOK_POSITION.getLeftEdge(), SHELF, Z_BACK_STOP);
+        // Sprite coordinates (No offset this time, as we already know where in the texture this face falls.)
+        e.sprite(0, 0, 0, 0);
+        e.sprite(1, 0, 7, 0);
+        e.sprite(2, 0, 7, 7);
+        e.sprite(3, 0, 0, 7);
+        // Apply the cover texture and emit.
+        e.spriteBake(0, cover, MutableQuadView.BAKE_ROTATE_NONE).emit();
+        // Now for the spine. Vertices:
+        e.pos(0, BOOK_POSITION.getLeftEdge(), HEIGHT, DEPTH);
+        e.pos(1, BOOK_POSITION.getRightEdge(), HEIGHT, DEPTH);
+        e.pos(2, BOOK_POSITION.getRightEdge(), SHELF, DEPTH);
+        e.pos(3, BOOK_POSITION.getLeftEdge(), SHELF, DEPTH);
+        // Sprite Coordinates:
+        e.sprite(0, 0, 7, 0);
+        e.sprite(1, 0, 7 + BOOK_POSITION.PIXELS, 0);
+        e.sprite(2, 0, 7 + BOOK_POSITION.PIXELS, 7);
+        e.sprite(3, 0, 7, 7);
+        // Apply the cover texture and emit.
+        e.spriteBake(0, cover, MutableQuadView.BAKE_ROTATE_NONE).emit();
+        // Lastly, we have the front cover. Vertices:
+        e.pos(0, BOOK_POSITION.getRightEdge(), HEIGHT, DEPTH);
+        e.pos(1, BOOK_POSITION.getRightEdge(), HEIGHT, Z_BACK_STOP);
+        e.pos(2, BOOK_POSITION.getRightEdge(), SHELF, Z_BACK_STOP);
+        e.pos(3, BOOK_POSITION.getRightEdge(), SHELF, DEPTH);
+        // Sprite coordinates:
+        e.sprite(0, 0, 7 + BOOK_POSITION.PIXELS, 0);
+        e.sprite(1, 0, 7 + BOOK_POSITION.PIXELS + 7, 0);
+        e.sprite(2, 0, 7 + BOOK_POSITION.PIXELS + 7, 7);
+        e.sprite(3, 0, 7 + BOOK_POSITION.PIXELS, 7);
+        // For the final time in this book, apply the cover texture and emit.
+        e.spriteBake(0, cover, MutableQuadView.BAKE_ROTATE_NONE).emit();
+    }
 }
