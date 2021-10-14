@@ -1,7 +1,6 @@
 package net.pinaz993.simpleshelves;
 
 
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -23,15 +22,20 @@ public enum BookPosition {
 
     public final int SLOT; // The index of the slot that this book position stores books in.
     public final int PIXELS; // How wide this book is in pixels (1/16th of a meter).
-    public final double WIDTH; // How wide this book is in meters.
+    public final float WIDTH; // How wide this book is in meters.
+    private ShelfQuadrant quadrant = null; // The quadrant this book sits in.
+    private float leftEdge = -1; // The X coordinate of the left edge of the book. Calculated lazily.
+    private float rightEdge = -1; // The X coordinate of the right edge of the book. Calculated lazily.
+    // Yes, I could have statically assigned those, but both edges are emergent properties of the books. My gut says
+    // that setting them leaves me open to problems if I change something.
 
     BookPosition(int slot, int pixels) {
         this.SLOT = slot;
         this.PIXELS = pixels;
-        this.WIDTH = (double) pixels / 16;
+        this.WIDTH = (float) pixels / 16;
     }
 
-    /** When the player uses this block, calculate which book they're clicking on.
+    /** When the player uses a shelf, calculate which book they're clicking on.
      * @param hit The BlockHitResult that tells you how and where the player clicked.
      * @param facing which way the block was facing.
      */
@@ -70,7 +74,7 @@ public enum BookPosition {
                 // Iterate through all book positions in the quadrant that was clicked on.
                 for (BookPosition bp : q.BOOK_POSITIONS)
                     // If u is between the edges, return the current book.
-                    if (u >= getLeftEdge(bp, q) && u < getRightEdge(bp, q)) return bp;
+                    if (u >= bp.getLeftEdge() && u < bp.getRightEdge()) return bp;
                 throw new IllegalStateException( // Inaccessible unless none of the books in the quadrant are a match.
                         "Horizontal Position " + u + " doesn't hit any book in " + q);
             }
@@ -85,12 +89,12 @@ public enum BookPosition {
                     default -> throw new IllegalStateException(
                             "Shelves cannot face ".concat(facing.toString()).concat("."));
                 };
-                // BETA and DELTA start halfway into the block, horizontally.
+                // BETA and DELTA start halfway into the block, horizontally. Subtract half to calculate from the edge.
                 if (q == ShelfQuadrant.BETA || q == ShelfQuadrant.DELTA) u -= .5;
                 // Iterate through all book positions in the quadrant that was clicked on.
                 for (BookPosition bp : q.BOOK_POSITIONS)
                     // If u is between the edges, return the current book.
-                    if (u >= getLeftEdge(bp, q) && u < getRightEdge(bp, q)) return bp;
+                    if (u >= bp.getLeftEdge() && u < bp.getRightEdge()) return bp;
                 throw new IllegalStateException( // Inaccessible unless none of the books in the quadrant are a match.
                         "Horizontal Position " + u + " doesn't hit any book in " + q);
             }
@@ -101,31 +105,55 @@ public enum BookPosition {
     }
 
     /**
-     * Returns the distance in meters between the beginning of this book's quadrant to the left edge of the book.
-     * e.g.: GAMMA_1 is .1875m wide at the spine. GAMMA_2: .125m. GAMMA_3: .1875. If this is called from GAMMA_3,
-     * it will return .1875 + .125, or .3125, exactly 5 pixels across. I feel like this one isn't as easy to understand
-     * as some of my other work. That being said, it allows for some very nice elegance.
+     * Lazily calculates and returns the quadrant this book belongs to. Sets an internal property if this is the first
+     * time. You might ask why I'm doing this instead of setting it on enum creation, like the slot, and the width in
+     * pixels. I tried that. But since ShelfQuadrant enums have BookPosition integrated into their creation, one has to
+     * be defined first. If you leave a circular dependency in like that, one or the other will be initialized to null.
+     * This avoids that, while only going through the switch statement once per enum value.
      */
-    public static double getLeftEdge(BookPosition pos, ShelfQuadrant quadrant){
-        double rtn = 0;
-        for(BookPosition bp: quadrant.BOOK_POSITIONS){
-            if(bp == pos) return rtn; // Stop and return if we've reached this book.
-            rtn += bp.WIDTH; // Add width to the return value iff we're not done.
+    public ShelfQuadrant getQuadrant() {
+        if(quadrant == null) {
+            quadrant = switch (this) {
+                case ALPHA_1, ALPHA_2, ALPHA_3 -> ShelfQuadrant.ALPHA;
+                case BETA_1, BETA_2, BETA_3 -> ShelfQuadrant.BETA;
+                case GAMMA_1, GAMMA_2, GAMMA_3 -> ShelfQuadrant.GAMMA;
+                case DELTA_1, DELTA_2, DELTA_3 -> ShelfQuadrant.DELTA;
+            };
         }
-        throw new IllegalArgumentException("Book Position " + pos.toString()
-                + " is not located in Shelf Quadrant " + quadrant);
+        return quadrant;
     }
 
     /**
-     * Does the same as getLeftEdge(), except it includes the width of this book.
+     * Lazily calculates and returns the distance in meters between the beginning of this book's quadrant to the left
+     * edge of the book. Can also be used to get the X coordinate for the left edge.
+     * e.g.: GAMMA_1 is .1875m wide at the spine. GAMMA_2: .125m. GAMMA_3: .1875. If this is called from GAMMA_3,
+     * it will return .1875 + .125, or .3125, exactly 5 pixels across. I feel like this one isn't as easy to understand
+     * as some of my other work. That being said, it allows for some very nice elegance.
+     *
+     * I am assigning a field to this because, while I could calculate this on the fly, I don't want to access up to
+     * four objects in memory every time a shelf is placed down.
      */
-    public static double getRightEdge(BookPosition pos, ShelfQuadrant quadrant){
-        double rtn = 0;
-        for(BookPosition bp: quadrant.BOOK_POSITIONS){
-            rtn += bp.WIDTH; // Add width to the return value iff we're not done.
-            if(bp == pos) return rtn; // Stop and return if we've reached this book.
+    public float getLeftEdge(){
+        if(leftEdge >= 0) return leftEdge; // We've already calculated this,so we don't need to do so again.
+        leftEdge = 0; // Start at the left edge of the shelf.
+        // It occurs to me that this is not guaranteed to iterate through all the books in the proper order.
+        // It works for now, so I'll just put a note in ShelfQuadrant that order is important.
+        for(BookPosition bp: getQuadrant().BOOK_POSITIONS){
+            if(bp == this) return leftEdge; // Stop and return if we've reached this book.
+            leftEdge += bp.WIDTH; // Add width to the return value iff we're not done.
         }
-        throw new IllegalArgumentException("Book Position " + pos.toString()
-                + " is not located in Shelf Quadrant " + quadrant);
+        // This is still here because the return statement is conditional.
+        throw new IllegalArgumentException("Book Position " + this
+                + " is not located in Shelf Quadrant " + this.quadrant);
+    }
+
+    /**
+     * Lazily calculates the distance in meters between the beginning of this book's quadrant and the right edge of the
+     * book. Can also be used to get the X coordinate of the right edge. Depends on getLeftEdge.
+     */
+    public float getRightEdge(){
+        if(rightEdge >= 0) return rightEdge;
+        rightEdge = getLeftEdge() + WIDTH;
+        return rightEdge;
     }
 }

@@ -37,8 +37,8 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
     @Nullable
     @Override
-    public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId) {
-        // TODO: Get the textures
+    public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter,
+                           ModelBakeSettings rotationContainer, Identifier modelId) {
         // I don't know what any of these things are. Monkey see, Monkey do.
         Renderer renderer = RendererAccess.INSTANCE.getRenderer(); // This smells. Why is there a separate access class?
         MeshBuilder builder = renderer.meshBuilder();
@@ -71,7 +71,7 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
         // I will NOT be randomizing the widths of the books. Those are going to stay static, not only because I'd have
         // to figure out how to make sure the books in each quadrant added up to eight pixels, but because the clicking
         // positions for inserting and extracting books are hard coded into BookPosition. However, other values for the
-        // books, such as how deep and tall they are, can be randomized for aesthetics. That will have to be calulated
+        // books, such as how deep and tall they are, can be randomized for aesthetics. That will have to be calculated
         // in the custom class as well as the textures.
 
     }
