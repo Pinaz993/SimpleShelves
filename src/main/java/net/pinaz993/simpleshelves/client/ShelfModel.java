@@ -21,8 +21,7 @@ import java.util.*;
 import java.util.function.Function;
 
 public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
-
-    // TODO: I still don't know what a mesh is.
+    // The collection of all quads that need to be rendered.
     private Mesh mesh;
 
     @Override
@@ -45,35 +44,6 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
         QuadEmitter emitter = builder.getEmitter();
 
         // TODO: Draw the rest of the owl.
-        // Shelf Entity now has a way to get which books need rendered, so I won't need access to world. At this time,
-        // I need to determine (via random choice) what textures are getting applied to what books. I also need to
-        // remember that the more I can cache (such as the randomized sizes and textures of the books), the less will
-        // need to be calculated when it's time to bake the model, and thus the faster baking the model will be.
-        // Perhaps I can accomplish that with a field that is calculated if it doesn't exist. However, I don't know if
-        // there will be one of these objects for each block. Probably not. I certainly don't have a constructor I can
-        // define it in. Maybe that definition should be pushed into the entity after all. It'll have the world
-        // coordinates, and it's guaranteed to be one per shelf and generated when the shelf is placed.
-
-        // Alright, that's decided. Then I will need to pass a custom object at baking time that gives the baking
-        // process the information it needs to render the books on the shelf. How do I plan on implementing texture
-        // fetching? I don't want to use an array, because then I'll be using magic numbers. I need to use a Map of some
-        // description. HashMap it is. I'm not too crazy about deciding on the texture for each book in a massive if
-        // table inside of a for loop, but I don't have any better ideas. Looks like that's going to be the way to go.
-
-        // It just occurred to me that in theory, this could allow for texture assignment based on NBT data, since I'm
-        // handling that in the entity instead of here. That could be really nice. However, there's no way I'm doing the
-        // texture work for that. Nope. Nuh uh.
-
-        // It also occurred to me that I'm going to need a way to tell this class that the model needs re-baked, because
-        // I'd rather not re-bake it every time someone changes a block in the chunk. I'll need to cache the baked model
-        // and re-bake it only if the block has been marked dirty since the last time it was baked.
-
-        // I will NOT be randomizing the widths of the books. Those are going to stay static, not only because I'd have
-        // to figure out how to make sure the books in each quadrant added up to eight pixels, but because the clicking
-        // positions for inserting and extracting books are hard coded into BookPosition. However, other values for the
-        // books, such as how deep and tall they are, can be randomized for aesthetics. That will have to be calculated
-        // in the custom class as well as the textures.
-
     }
 
     //<editor-fold desc="Puzzling Boilerplate">
