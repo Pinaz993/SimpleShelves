@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.pinaz993.simpleshelves.woodshelves.*;
 
 public class SimpleShelves implements ModInitializer {
     public static final FabricBlockSettings WOOD_SHELF_SETTINGS = FabricBlockSettings.of(Material.WOOD)
