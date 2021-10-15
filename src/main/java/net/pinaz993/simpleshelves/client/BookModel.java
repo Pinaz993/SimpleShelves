@@ -107,10 +107,13 @@ public class BookModel {
 
     private final int HEAD_HORIZONTAL_OFFSET; // An offset to make the paper look different on different books.
 
+    private boolean enabled = false; // Should this book be rendered?
+
     /**
      * Given a BookPosition to occupy, randomly determines the height and depth of the book (within static limits), and
      * the textures to be displayed on all sides of the book. May need to determine more beforehand to speed up quad
      * emission.
+     * @param random: A Random with a seed that depends on the seed of the world and the block position of the shelf.
      */
     public BookModel(BookPosition bookPosition, Random random){
         boolean topShelf = bookPosition.getQuadrant() == ShelfQuadrant.ALPHA || // Is the book on the top shelf?
@@ -204,5 +207,13 @@ public class BookModel {
         e.spriteColor(0, -1, -1, -1, -1);
         // For the final time for this book, apply the cover texture and emit.
         e.spriteBake(0, cover, MutableQuadView.BAKE_ROTATE_NONE).emit();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

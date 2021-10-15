@@ -10,9 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.pinaz993.simpleshelves.client.BookModel;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
 
 /**
  * A block entity for shelves. Only contains methods that could not be implemented in ShelfInventory. Pretty much all
@@ -26,10 +30,11 @@ public class ShelfEntity extends BlockEntity
     private boolean hasGenericItems;   // Referring to this should be faster than querying the inventory every frame.
     public boolean hasGenericItems() { return hasGenericItems;} // Private with getter, because nothing should be
                                                                 // setting it except for markDirtyInWorld().
-    private final boolean[] bookSlotsOccupied; // Boolean to be passed to the model baker.
-                                               // Will only be updated when the block is marked dirty.
     private int redstoneValue; // Cached value so we don't have to query the inventory for every redstone update.
     public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
+
+    private final BookModel[] MODELS = new BookModel[12];
+    private boolean needsUpdate = true;
 
 
     public ShelfEntity(BlockPos pos, BlockState state) {
@@ -40,13 +45,13 @@ public class ShelfEntity extends BlockEntity
         this.hasGenericItems = false;
         // No redstone signal at the moment.
         this.redstoneValue = 0;
-        // All book slots are empty upon creation.
-        this.bookSlotsOccupied = new boolean[]{
-                false, false, false,
-                false, false, false,
-                false, false, false,
-                false, false, false
-        };
+        // Initialize the array of block models, but only if this is running on the client.
+        if(world != null && world.isClient()) {
+            Random r = new Random(pos.asLong()); // Source randomness from the shelf's position in the world.
+            for(BookPosition bp: BookPosition.class.getEnumConstants()){
+                MODELS[bp.SLOT] = new BookModel(bp, r);
+            }
+        }
     }
 
     // Item getter provided because I couldn't figure out a way to implement the item field in ShelfInventory, but that
@@ -99,8 +104,8 @@ public class ShelfEntity extends BlockEntity
         for(BookPosition bp: BookPosition.class.getEnumConstants()) {
             // Grab the stack for this book pos.
             ItemStack stack = getStack(bp.SLOT);
-            // Update the boolean for this pos. If it's empty, then the boolean should be false.
-            this.bookSlotsOccupied[bp.SLOT] = !stack.isEmpty();
+            // Update the enabled flag for the book model for this slot.
+            this.MODELS[bp.SLOT].setEnabled(!stack.isEmpty());
             // Redstone book? Update the redstone value for the shelf.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
@@ -120,9 +125,9 @@ public class ShelfEntity extends BlockEntity
     public NbtCompound toClientTag(NbtCompound tag) {return writeNbt(tag);}
 
     /**
-     * For passing information to the model to tell it which books to render.
+     * For passing information to the model to tell it which books to render. Only run on client instances.
      */
     @Override
-    public @Nullable Object getRenderAttachmentData() {return this.bookSlotsOccupied;}
+    public @Nullable Object getRenderAttachmentData() {return MODELS;}
 }
 
