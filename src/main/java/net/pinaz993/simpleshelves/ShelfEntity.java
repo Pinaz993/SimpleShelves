@@ -1,5 +1,7 @@
 package net.pinaz993.simpleshelves;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
 import net.minecraft.block.BlockState;
@@ -33,6 +35,8 @@ public class ShelfEntity extends BlockEntity
     private int redstoneValue; // Cached value so we don't have to query the inventory for every redstone update.
     public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
 
+    // An array of models that only exist on the client side. Used for rendering books.
+    @Environment(EnvType.CLIENT)
     private final BookModel[] MODELS = new BookModel[12];
     private boolean needsUpdate = true;
 
@@ -104,8 +108,8 @@ public class ShelfEntity extends BlockEntity
         for(BookPosition bp: BookPosition.class.getEnumConstants()) {
             // Grab the stack for this book pos.
             ItemStack stack = getStack(bp.SLOT);
-            // Update the enabled flag for the book model for this slot.
-            this.MODELS[bp.SLOT].setEnabled(!stack.isEmpty());
+            // Update the enabled flag for the book model for this slot, if on client.
+            if(world.isClient) this.MODELS[bp.SLOT].setEnabled(!stack.isEmpty());
             // Redstone book? Update the redstone value for the shelf.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
@@ -128,6 +132,7 @@ public class ShelfEntity extends BlockEntity
      * For passing information to the model to tell it which books to render. Only run on client instances.
      */
     @Override
+    @Environment(EnvType.CLIENT)
     public @Nullable Object getRenderAttachmentData() {return MODELS;}
 }
 
