@@ -1,23 +1,29 @@
 package net.pinaz993.simpleshelves;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.Nullable;
+
+import static net.pinaz993.simpleshelves.SimpleShelves.SHELF_BLOCK_ENTITY;
 
 /**
  * A block entity for shelves. Only contains methods that could not be implemented in ShelfInventory. Pretty much all
  * inventory stuff lives over there.
  */
 
-public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEntityClientSerializable {
+public class ShelfEntity extends BlockEntity implements ShelfInventory {
 
     DefaultedList<ItemStack> items;    // The items that are in the inventory.
     private boolean hasGenericItems;   // Referring to this should be faster than querying the inventory every frame.
@@ -28,7 +34,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
 
 
     public ShelfEntity(BlockPos pos, BlockState state) {
-        super(SimpleShelves.SHELF_BLOCK_ENTITY, pos, state);
+        super(SHELF_BLOCK_ENTITY, pos, state);
         // Initialize the list of items that are stored in this inventory.
         this.items = DefaultedList.ofSize(16, ItemStack.EMPTY);
         this.hasGenericItems = false;
@@ -53,9 +59,23 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, items);
-        return super.writeNbt(nbt);
+    }
+
+    /**
+     * Serializes the state of this block entity. I don't know if I need the id, x, y, and z, but ultimately, they're
+     * not all that much to put in the NBT, and better safe than sorry. Can be used for saving and syncing.
+     * @return The state of this block entity in NBT form.
+     */
+    public NbtCompound toNbt(){
+        NbtCompound rtn = new NbtCompound();
+        Inventories.writeNbt(rtn, items);
+        rtn.putString("id", BlockEntityType.getId(SHELF_BLOCK_ENTITY).toString());
+        rtn.putInt("x", this.pos.getX());
+        rtn.putInt("y", this.pos.getY());
+        rtn.putInt("z", this.pos.getZ());
+        return rtn;
     }
 
     // Lifted almost directly from BlockEntity. We can't get a World object from in ShelfInventory, so we have to
@@ -97,15 +117,17 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
         BlockEntity.markDirty(world, pos, state);
         if(!world.isClient()) { // If this is running on the server...
             world.updateNeighbors(pos, state.getBlock()); // Update all the neighbors.
-            sync(); // Sync to the client.
+            // Sync to the client.
         }
     }
 
+    @Nullable
     @Override
-    public void fromClientTag(NbtCompound tag) {readNbt(tag);}
-
-    @Override
-    public NbtCompound toClientTag(NbtCompound tag) {return writeNbt(tag);}
-
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(
+                this,
+                (BlockEntity b) -> this.toNbt()
+        );
+    }
 }
 

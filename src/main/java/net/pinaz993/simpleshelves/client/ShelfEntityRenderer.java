@@ -66,7 +66,7 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
         matrices.translate(x, y, .25); // Translate to the position this quadrant occupies.
         ItemRenderer renderer = MinecraftClient.getInstance().getItemRenderer(); // Grab the item renderer. (SINGLETON!)
         // If this is a block that renders as a block:
-        if(renderer.getHeldItemModel(stack, null, null, 0).hasDepth())
+        if(renderer.getModel(stack, null, null, 0).hasDepth())
             matrices.scale(.75f, .75f, .75f); // Scale to 75%.
         else matrices.scale(.375f, .375f, .375f); // Otherwise scale to 35.7%
         // Rotate 180 degrees to make block or item face properly outward.
