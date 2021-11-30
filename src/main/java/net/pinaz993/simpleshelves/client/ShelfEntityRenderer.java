@@ -3,7 +3,6 @@ package net.pinaz993.simpleshelves.client;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -24,10 +23,12 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
     public void render(ShelfEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         if(!entity.hasGenericItems()) return; // If the shelf doesn't have a generic item in it, let's not go through all this trouble.
         World world = entity.getWorld();
-        if(world != null){ // No null pointers allowed here!
+        // Check to make sure world isn't null (for some reason), and check to make sure that the block entity isn't
+        // lingering in memory after the block has been broken or replaced. Because that's a thing.
+        if(world != null && world.getBlockEntity(entity.getPos()) == entity){
             Quaternion rotationQuaternion; // This defines the rotation we use to make sure the items end up in the right places.
             Vec3f axis = new Vec3f(0, 1, 0); // Let's define this once, so we don't waste time and memory.
-            switch (world.getBlockState(entity.getPos()).get(HorizontalFacingBlock.FACING)) {
+            switch (world.getBlockState(entity.getPos()).get(HorizontalFacingBlock.FACING)) { // Which direction?
                 case NORTH -> rotationQuaternion = new Quaternion(axis, 180, true);
                 case EAST -> rotationQuaternion = new Quaternion(axis, 90, true);
                 case SOUTH -> rotationQuaternion = new Quaternion(axis, 0, true);
