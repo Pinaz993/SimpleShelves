@@ -29,20 +29,19 @@ import java.util.function.Supplier;
 
 public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
     // The collection of all quads that need to be rendered.
-    private static final Identifier DEFAULT_BLOCK_MODEL = new Identifier("minecraft:block/block");
     private Mesh mesh;
     private ModelTransformation transformation;
 
     @Override
     public Collection<Identifier> getModelDependencies() {
-        return List.of(DEFAULT_BLOCK_MODEL);
-
-        // TODO: Figure out how to add the empty shelf model here.
+        return List.of(
+                new Identifier("simple_shelves:abstract_shelf")
+        );
     }
 
     @Override
     public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
-        // TODO: When is this run? At launch, or just before the model is baked?
+        return BookModel.getAllSpriteIdentifiers();
     }
 
     @Nullable
@@ -79,7 +78,7 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
     }
 
     @Override
-    public Sprite getSprite() {
+    public Sprite getParticleSprite() {
         return null;
     }
 
@@ -107,9 +106,9 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
 
     @Override
     public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-
     }
 
+    //I know I'll need to make this different so that the shelf appears empty in the inventory.
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
 
