@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier;
 import net.pinaz993.simpleshelves.BookPosition;
 import net.pinaz993.simpleshelves.ShelfQuadrant;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -32,6 +33,17 @@ public class BookModel {
 
     // The Z coordinate of the front surface of the rear plate of the shelf. This is as low in Z as a vertex can be.
     private static final float Z_BACK_STOP = (float) 1 / 16;
+
+    /**
+     * Collate all Sprite Identifiers and return in a single list.
+     */
+    public static List<SpriteIdentifier> getAllSpriteIdentifiers() {
+        List<SpriteIdentifier> rtn = new ArrayList<>();
+        for(BookTextureList btl: BookTextureList.class.getEnumConstants()){
+            rtn.addAll(btl.LIST);
+        }
+        return rtn;
+    }
     //</editor-fold>
 
     // The height of the book, as determined by an RNG seeded with the coordinates of the block and the seed of the
