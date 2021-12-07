@@ -5,11 +5,13 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.pinaz993.simpleshelves.BookPosition;
 import net.pinaz993.simpleshelves.ShelfQuadrant;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -19,40 +21,9 @@ import static net.minecraft.util.math.MathHelper.abs;
    determines the book's variable qualities, and a method for emitting the proper quads. 12 of these objects exist for
    every shelf in client-loaded chunks. Be ware.
  */
-@SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say. Again.
 public class BookModel {
+
     //<editor-fold desc="Static Stuff">
-    // Arrays of strings for finding textures.
-    private static final String[] ONE_PX_TEXTURE_NAMES = new String[] {
-            "simple_shelves:block/book_one_px_alpha"
-    };
-    private static final String[] TWO_PX_TEXTURE_NAMES = new String[] {
-            "simple_shelves:block/book_two_px_alpha",
-            "simple_shelves:block/book_two_px_beta",
-            "simple_shelves:block/book_two_px_gamma",
-            "simple_shelves:block/book_two_px_delta"
-    };
-    private static final String[] THREE_PX_TEXTURE_NAMES = new String[] {
-            "simple_shelves:block/book_three_px_alpha",
-            "simple_shelves:block/book_three_px_beta",
-            "simple_shelves:block/book_three_px_gamma",
-            "simple_shelves:block/book_three_px_delta",
-            "simple_shelves:block/book_three_px_epsilon"
-    };
-    private static final String[] FOUR_PX_TEXTURE_NAMES = new String[] {
-            "simple_shelves:block/book_four_px_alpha",
-            "simple_shelves:block/book_four_px_beta",
-    };
-    private static final String[] PAPER_TEXTURE_NAMES = new String[] {
-            "simple_shelves:block/book_paper"
-    };
-
-    // The direction the various quads should be visible from. I don't know how to use these yet.
-    private static final Direction HEAD_DIRECTION = Direction.UP; // Direction for the head (or top edge) quad.
-    private static final Direction REAR_COVER_DIRECTION = Direction.WEST; // Direction for the rear cover quad.
-    private static final Direction SPINE_DIRECTION = Direction.SOUTH; // Direction for the spine quad.
-    private static final Direction FRONT_COVER_DIRECTION = Direction.EAST; // Direction for the front cover quad.
-
     // The minimum and maximum values for the variable dimensions of a book. A pixel is 1/16m, or .0625. Variables so I
     // can adjust them later if need be.
     private static final float MIN_HEIGHT = (float) 6 / 16;
@@ -64,30 +35,14 @@ public class BookModel {
     private static final float Z_BACK_STOP = (float) 1 / 16;
 
     /**
-     * Chooses a random texture from the lists above.
-     * This is very complicated, but it's also very compact. I've yet to decide if the latter is a good thing.
-     * @param list: An integer between 0 and 4 inclusive. 0 indicates the paper list, 1-4 indicate the list for that
-     *            amount of pixels.
-     * @param random: An RNG seeded with the world seed and the shelf's block position.
-     * @return The sprite identifier for a texture that will be used, either for the cover of the book, or its head.
+     * Collate all Sprite Identifiers and return in a single list.
      */
-    private static SpriteIdentifier getRandomSprite(int list, Random random) {
-        String[] names;
-        names = switch (list) {
-            case 0 -> PAPER_TEXTURE_NAMES;
-            case 1 -> ONE_PX_TEXTURE_NAMES;
-            case 2 -> TWO_PX_TEXTURE_NAMES;
-            case 3 -> THREE_PX_TEXTURE_NAMES;
-            case 4 -> FOUR_PX_TEXTURE_NAMES;
-            default -> throw new IllegalArgumentException(String.format(
-                    "Pixel width value out of range: %s is not between 0 and 4 inclusive.", list
-            ));
-        };
-        // Chose a random (determined by the passed in random object) string from the indicated name array,
-        // and return the texture associated with that string in the block atlas.
-        return new SpriteIdentifier(
-                SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE,
-                new Identifier(names[(int) (Math.ceil(random.nextDouble() % 1) * names.length)]));
+    public static List<SpriteIdentifier> getAllSpriteIdentifiers() {
+        List<SpriteIdentifier> rtn = new ArrayList<>();
+        for(BookTextureList btl: BookTextureList.class.getEnumConstants()){
+            rtn.addAll(btl.LIST);
+        }
+        return rtn;
     }
     //</editor-fold>
 
@@ -129,8 +84,9 @@ public class BookModel {
         this.LEFT_EDGE = bookPosition.getLeftEdge();
         this.RIGHT_EDGE = bookPosition.getRightEdge();
         this.PIXELS = bookPosition.PIXELS;
-        this.HEAD = getRandomSprite(0, random);            // Grab random textures. HEAD, from the paper textures
-        this.COVER = getRandomSprite(bookPosition.PIXELS, random);  // and COVER, from the appropriate cover textures.
+        // Grab random textures for the head of the book and its cover.
+        this.HEAD = BookTextureList.PAPER.getRandomSpriteID(random);
+        this.COVER = BookTextureList.getCoverTexture(PIXELS).getRandomSpriteID(random);
     }
 
     /**
@@ -154,7 +110,7 @@ public class BookModel {
         e.pos(2, RIGHT_EDGE, HEIGHT, DEPTH);
         e.pos(3, RIGHT_EDGE, HEIGHT, Z_BACK_STOP);
         // Now that we've designated all four corners of the book, we need to set the sprite position for each vertex.
-        // Calculate a random horizontal offset for the page texture. Don't go over the edge of the texture.
+        // Use the randomly chosen horizontal offset for the page texture.
         e.sprite(0, 0, HEAD_HORIZONTAL_OFFSET, 0);
         e.sprite(1, 0, HEAD_HORIZONTAL_OFFSET, 7);
         // The texture dimensions don't change with the random sizing of the books. This causes the texture to be scaled
@@ -209,11 +165,74 @@ public class BookModel {
         e.spriteBake(0, cover, MutableQuadView.BAKE_ROTATE_NONE).emit();
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public boolean isEnabled() {return enabled;}
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setEnabled(boolean enabled) {this.enabled = enabled;}
+
+    /**
+     * Perhaps this is overkill to avoid magic numbers, but I'm fastidious. Give me a break.
+     * Stores the string identifiers for each texture, and can dish out a random texture from a given list.
+     */
+    private enum BookTextureList{
+        PAPER(List.of(
+                getSpriteID("simple_shelves:block/book_paper")
+        )),
+        ONE_PIXEL(List.of(
+                getSpriteID("simple_shelves:block/book_one_px_alpha")
+        )),
+        TWO_PIXEL(List.of(
+                getSpriteID("simple_shelves:block/book_two_px_alpha"),
+                getSpriteID("simple_shelves:block/book_two_px_beta"),
+                getSpriteID("simple_shelves:block/book_two_px_gamma"),
+                getSpriteID("simple_shelves:block/book_two_px_delta")
+        )),
+        THREE_PIXEL(List.of(
+                getSpriteID("simple_shelves:block/book_three_px_alpha"),
+                getSpriteID("simple_shelves:block/book_three_px_beta"),
+                getSpriteID("simple_shelves:block/book_three_px_gamma"),
+                getSpriteID("simple_shelves:block/book_three_px_delta"),
+                getSpriteID("simple_shelves:block/book_three_px_epsilon")
+        )),
+        FOUR_PIXEL(List.of(
+                getSpriteID("simple_shelves:block/book_four_px_alpha"),
+                getSpriteID("simple_shelves:block/book_four_px_beta")
+        ));
+
+        /**
+         * Grab this texture for me, would you?
+         */
+        private static SpriteIdentifier getSpriteID (String s){
+            return new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier(s));
+        }
+
+        /**
+         * @param pixels the width of the book model in pixels,
+         * @return the proper texture list.
+         */
+        static BookTextureList getCoverTexture(int pixels){
+            return switch (pixels) {
+                case 1 -> ONE_PIXEL;
+                case 2 -> TWO_PIXEL;
+                case 3 -> THREE_PIXEL;
+                case 4 -> FOUR_PIXEL;
+                default -> throw new IllegalArgumentException(String.format(
+                        "Pixel width value out of range: %s is not between 1 and 4 inclusive.", pixels
+                ));
+            };
+        }
+
+        // The titular list.
+        final List<SpriteIdentifier> LIST;
+
+        BookTextureList(List<SpriteIdentifier> list) {
+            this.LIST = list;
+        }
+
+        /**
+         * Given a source of randomness, return a random texture from the list.
+         */
+        SpriteIdentifier getRandomSpriteID(Random random) {
+            return LIST.get((int) (Math.ceil(random.nextDouble() % 1) * LIST.size()));
+        }
     }
 }
