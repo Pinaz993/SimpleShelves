@@ -63,6 +63,12 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
+	// I use some invalid JSON files as templates. These cause errors when put into the jar. The following line(s)
+	// excludes those files.
+	processResources.exclude(
+			'/assets/simple_shelves/blockstates/abstract_shelf.json',
+			'/data/simple_shelves/recipes/abstract_shelf.json'
+	)
 }
 
 // configure the maven publication
