@@ -1,5 +1,6 @@
 package net.pinaz993.simpleshelves;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -10,11 +11,14 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 import static net.pinaz993.simpleshelves.SimpleShelves.SHELF_BLOCK_ENTITY;
 
@@ -50,10 +54,6 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        // No call to super, because it has an empty body.
-        // The server only sends full item stacks in NBT sync messages. Thus...
-        // Clear the inventory, so that stacks that aren't sent by the server are cleared.
-        items.clear();
         Inventories.readNbt(nbt, items);
         markDirty();
     }
@@ -71,7 +71,8 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
     public NbtCompound toNbt(){
         NbtCompound rtn = new NbtCompound();
         Inventories.writeNbt(rtn, items);
-        rtn.putString("id", BlockEntityType.getId(SHELF_BLOCK_ENTITY).toString());
+        // Sometimes I hate @Nullable.
+        rtn.putString("id", Objects.requireNonNull(BlockEntityType.getId(SHELF_BLOCK_ENTITY)).toString());
         rtn.putInt("x", this.pos.getX());
         rtn.putInt("y", this.pos.getY());
         rtn.putInt("z", this.pos.getZ());
@@ -101,33 +102,35 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
             }
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         this.redstoneValue = 0; // Reset the redstone value.
-        // Iterate through all block positions, updating state iff needed.
+        // Iterate through all block positions, updating state.
+        BlockState newState = state; // New block state to be implemented in world.
+        // Iterate over all positions and record the new state values, updating redstone value if needed.
         for(BookPosition bp: BookPosition.class.getEnumConstants()){
-            boolean oldState = state.get(bp.BLOCK_STATE_PROPERTY); // What is the state now?
             ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
-            boolean newState = !stack.isEmpty(); // Is the associated slot empty?
-            // If the old state is different than the new state, tell the world to update the state to the new one.
-            // I don't just update all of them because I don't know how intensive that is, and I don't want to lag.
-            if(oldState != newState) world.setBlockState(pos, state.with(bp.BLOCK_STATE_PROPERTY, newState));
+            newState = newState.with(bp.BLOCK_STATE_PROPERTY, !stack.isEmpty());
             // If the stack is of redstone books, update redstone value if this is higher than what we've seen thus far.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
         }
-        // Super calls World.markDirty() and possibly World.updateComparators().
-        BlockEntity.markDirty(world, pos, state);
-        if(!world.isClient()) { // If this is running on the server...
-            world.updateNeighbors(pos, state.getBlock()); // Update all the neighbors.
-            // Sync to the client.
-        }
+        // Set the new state, notify the block's neighbors (if on server), but don't recalculate lighting updates.
+        // Don't update pathfinding entities. Don't pass GO. Don't collect $200.
+        world.setBlockState(pos, newState, Block.NOTIFY_NEIGHBORS | Block.SKIP_LIGHTING_UPDATES);
+        // Super calls World.markDirty() and possibly World.updateComparators(). We're already updating all neighbors,
+        world.markDirty(pos); // so we'll just call world.markDirty().
+        if(!world.isClient()) // If this is running on the server...
+            ((ServerWorld)world).getChunkManager().markForUpdate(pos); // Mark changes to be synced to the client.
+    }
+
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return this.toNbt();
     }
 
     @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(
-                this,
-                (BlockEntity b) -> this.toNbt()
-        );
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 }
 

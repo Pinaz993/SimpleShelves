@@ -1,15 +1,12 @@
 package net.pinaz993.simpleshelves;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -79,6 +76,7 @@ public interface ShelfInventory extends SidedInventory {
 
     /**
      * Is this inventory empty?
+     * This could be done faster with a hash comparison, but I don't think it's worth the effort.
      */
     @Override
     default boolean isEmpty() {
@@ -205,9 +203,7 @@ public interface ShelfInventory extends SidedInventory {
      * If this player aims at and attempts to use this block, can they use it? Should the block be highlighted?
      */
     @Override
-    default boolean canPlayerUse(PlayerEntity player) {
-        return true; // Yup.
-    }
+    default boolean canPlayerUse(PlayerEntity player) {return true; /* Yup. */}
 
     /**
      * Does the given quadrant have any books in it?
@@ -235,7 +231,6 @@ public interface ShelfInventory extends SidedInventory {
         // If you don't get any hits, return false.
         return false;
     }
-
 
     //<editor-fold desc="Sided Inventory Implementation">
     /**
@@ -293,7 +288,7 @@ public interface ShelfInventory extends SidedInventory {
         // Rounding down ensures that only full inventories produce the strongest signals.
         // Adding one ensures that only empty inventories fail to output a signal at all.
         return MathHelper.floor(c * 14f) + 1;
-
     }
+    //</editor-fold>
 
 }

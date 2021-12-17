@@ -157,15 +157,15 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
                         player.getX(), player.getY(), player.getZ(),
                         blockEntity.removeStack(quadrant.GENERIC_ITEM_SLOT));
                 return ActionResult.SUCCESS; // Something was done.
-            }
+            } // No generic? Look at book slot.
             BookPosition bookPosition = BookPosition.getBookPos(hit, state.get(FACING)); // Which book slot?
-            if (!blockEntity.getStack(bookPosition.SLOT).isEmpty()){ // Does that book position have a stack in it?
+            if (!blockEntity.getStack(bookPosition.SLOT).isEmpty()){ // Does that book slot have a stack in it?
                 // Spawn that item in the world as an item entity in the location of the player that right clicked.
                 ItemScatterer.spawn(world,
                         player.getX(), player.getY(), player.getZ(),
                         blockEntity.removeStack(bookPosition.SLOT));
                 return ActionResult.SUCCESS; // Something was done.
-            }
+            } else return ActionResult.FAIL; // If no book or generic item is in the slot, nothing was done.
         }
         if(ShelfInventory.isBookLike(activeStack)){ // Is the player holding a book-like item?
             // If so, try to insert it into the appropriate book slot.
