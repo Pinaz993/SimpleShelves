@@ -228,6 +228,8 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
 
     @Override
     public boolean emitsRedstonePower(BlockState state) { return true; } // Yes, it does emit redstone power.
+    // As much as I'd like to make it so that redstone doesn't connect to the other two sides, I can't do that without
+    // a mixin, so I'm not going to bother.
 
     @Override
     public int getStrongRedstonePower(@NotNull BlockState state, BlockView world, BlockPos pos, Direction direction) {
