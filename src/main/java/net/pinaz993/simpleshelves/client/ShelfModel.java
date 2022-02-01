@@ -28,9 +28,18 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
+
+    //TODO: Separate into UnbakedShelfModel and BakedShelfModel, because I don't like code soup.
+    private static final Identifier ABSTRACT_SHELF_MODEL = new Identifier("simple:shelves:block/abstract_shelf");
+    public final Identifier MODEL_ID;
     // The collection of all quads that need to be rendered.
     private Mesh mesh;
+    // A thing that is important for reasons.
     private ModelTransformation transformation;
+
+    public ShelfModel(Identifier id) {
+        MODEL_ID = id;
+    }
 
     @Override
     public Collection<Identifier> getModelDependencies() {
@@ -50,7 +59,7 @@ public class ShelfModel implements UnbakedModel, BakedModel, FabricBakedModel {
                            ModelBakeSettings rotationContainer, Identifier modelId) {
         // I need something called a transformation here. I think it has to do with the angle the item displays as in
         // an inventory. Split into two lines like this because there's no way to cast in-line. Java is dumb.
-        JsonUnbakedModel defaultBlockModel = (JsonUnbakedModel) loader.getOrLoadModel(DEFAULT_BLOCK_MODEL);
+        JsonUnbakedModel defaultBlockModel = (JsonUnbakedModel) loader.getOrLoadModel(ABSTRACT_SHELF_MODEL);
         transformation = defaultBlockModel.getTransformations();
         // I don't know what any of these things are. Monkey see, Monkey do.
         Renderer renderer = RendererAccess.INSTANCE.getRenderer(); // This smells. Why is there a separate access class?

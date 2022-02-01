@@ -3,7 +3,6 @@ package net.pinaz993.simpleshelves.client;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
@@ -86,7 +85,7 @@ public class BookModel {
         this.PIXELS = bookPosition.PIXELS;
         // Grab random textures for the head of the book and its cover.
         this.HEAD = BookTextureList.PAPER.getRandomSpriteID(random);
-        this.COVER = BookTextureList.getCoverTexture(PIXELS).getRandomSpriteID(random);
+        this.COVER = BookTextureList.getCoverTextureList(PIXELS).getRandomSpriteID(random);
     }
 
     /**
@@ -209,7 +208,7 @@ public class BookModel {
          * @param pixels the width of the book model in pixels,
          * @return the proper texture list.
          */
-        static BookTextureList getCoverTexture(int pixels){
+        static BookTextureList getCoverTextureList(int pixels){
             return switch (pixels) {
                 case 1 -> ONE_PIXEL;
                 case 2 -> TWO_PIXEL;
