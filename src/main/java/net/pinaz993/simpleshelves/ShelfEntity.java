@@ -1,5 +1,7 @@
 package net.pinaz993.simpleshelves;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -35,6 +37,18 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
                                                                 // setting it except for markDirtyInWorld().
     private int redstoneValue; // Cached value so we don't have to query the inventory for every redstone update.
     public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
+
+    // An int that is used to contain binary flags to see if the book slots are filled. Initialized as empty.
+    @Environment(EnvType.CLIENT) // Only needed on the client side.
+    private int BookSlotBinaryFlagContainer = 0b000000000000; // Private with getter for yet again the same reason.
+    // If you're wondering why I would make such a thing, consider this:
+    // To bake the model for each book shelf, the model needs to know which books to bake into the model. As such,
+    // unless I wish to throw all such things into the entity renderer, I need to get that information to the unbaked
+    // model. Critically, it is <i>much</i> faster to load a single int than it is to actually query the array of items.
+    // thus, instead of asking the inventory if a book slot is occupied, I'll simply calculate and cache this value here
+    // every time the inventory is marked dirty, and thus be able to quickly query which books are available using
+    // bit masks and binary logic to speed up the rendering process. As a bonus, this is also very easy to compare
+    // against a cached value to see if the model even needs to be re-baked before we go through all that trouble.
 
 
     public ShelfEntity(BlockPos pos, BlockState state) {
@@ -107,7 +121,6 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         // Iterate over all positions and record the new state values, updating redstone value if needed.
         for(BookPosition bp: BookPosition.class.getEnumConstants()){
             ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
-            newState = newState.with(bp.BLOCK_STATE_PROPERTY, !stack.isEmpty());
             // If the stack is of redstone books, update redstone value if this is higher than what we've seen thus far.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
