@@ -39,7 +39,6 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
     public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
 
     // An int that is used to contain binary flags to see if the book slots are filled. Initialized as empty.
-    @Environment(EnvType.CLIENT) // Only needed on the client side.
     private int BookSlotBinaryFlagContainer = 0b000000000000; // Private with getter for yet again the same reason.
     // If you're wondering why I would make such a thing, consider this:
     // To bake the model for each book shelf, the model needs to know which books to bake into the model. As such,
@@ -121,6 +120,8 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         // Iterate over all positions and record the new state values, updating redstone value if needed.
         for(BookPosition bp: BookPosition.class.getEnumConstants()){
             ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
+            if(!stack.isEmpty()) // If the slot isn't empty...
+                this.BookSlotBinaryFlagContainer |= bp.BIT_FLAG; // ... OR the position flag onto the container.
             // If the stack is of redstone books, update redstone value if this is higher than what we've seen thus far.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());

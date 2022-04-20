@@ -6,35 +6,35 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public enum BookPosition {
-    ALPHA_1(0, 3, 0b111_111_111_110),
-    ALPHA_2(1, 1, 0b111_111_111_101),
-    ALPHA_3(2, 4, 0b111_111_111_011),
-    BETA_1( 3, 2, 0b111_111_110_111),
-    BETA_2( 4, 3, 0b111_111_101_111),
-    BETA_3( 5, 3, 0b111_111_011-111),
-    GAMMA_1(6, 3, 0b111_110_111_111),
-    GAMMA_2(7, 2, 0b111_101_111_111),
-    GAMMA_3(8, 3, 0b111_011_111_111),
-    DELTA_1(9, 2, 0b110_111_111_111),
-    DELTA_2(10,4, 0b101_111_111_111),
-    DELTA_3(11,2, 0b011_111_111_111);
+    ALPHA_1(0, 3, 0b000_000_000_001),
+    ALPHA_2(1, 1, 0b000_000_000_010),
+    ALPHA_3(2, 4, 0b000_000_000_100),
+    BETA_1( 3, 2, 0b000_000_001_000),
+    BETA_2( 4, 3, 0b000_000_010_000),
+    BETA_3( 5, 3, 0b000_000_100_000),
+    GAMMA_1(6, 3, 0b000_001_000_000),
+    GAMMA_2(7, 2, 0b000_010_000_000),
+    GAMMA_3(8, 3, 0b000_100_000_000),
+    DELTA_1(9, 2, 0b001_000_000_000),
+    DELTA_2(10,4, 0b010_000_000_000),
+    DELTA_3(11,2, 0b100_000_000_000);
 
 
     public final int SLOT; // The index of the slot that this book position stores books in.
     public final int PIXELS; // How wide this book is in pixels (1/16th of a meter).
     public final float WIDTH; // How wide this book is in meters.
-    public final int BIT_MASK; // A bit mask for use in quickly determining which books to render client-side.
+    public final int BIT_FLAG; // A bit mask for use in quickly determining which books to render client-side.
     private ShelfQuadrant quadrant = null; // The quadrant this book sits in.
     private float leftEdge = -1; // The X coordinate of the left edge of the book. Calculated lazily.
     private float rightEdge = -1; // The X coordinate of the right edge of the book. Calculated lazily.
     // Yes, I could have statically assigned those, but both edges are emergent properties of the books. My gut says
     // that setting them leaves me open to problems if I change something.
 
-    BookPosition(int slot, int pixels, int bitMask) {
+    BookPosition(int slot, int pixels, int bitFlag) {
         this.SLOT = slot;
         this.PIXELS = pixels;
         this.WIDTH = (float) pixels / 16;
-        this.BIT_MASK = bitMask;
+        this.BIT_FLAG = bitFlag;
     }
 
     /** When the player uses a shelf, calculate which book they're clicking on.

@@ -86,7 +86,8 @@ public class BookModel {
         // Grab random textures for the head of the book and its cover.
         this.HEAD = BookTextureList.PAPER.getRandomSpriteID(random);
         this.COVER = BookTextureList.getCoverTextureList(PIXELS).getRandomSpriteID(random);
-        this.BIT_MASK = bookPosition.BIT_MASK;
+        this.BIT_MASK = ~bookPosition.BIT_FLAG; //Make this the inverse of the bit flag of the book position.
+        // ANDing this with a bit flag container will return MAX_INT iff the bit representing this book slot is '1'.
     }
 
     /**
