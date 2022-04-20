@@ -1,7 +1,5 @@
 package net.pinaz993.simpleshelves;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -115,9 +113,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
             }
         this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
         this.redstoneValue = 0; // Reset the redstone value.
-        // Iterate through all block positions, updating state.
-        BlockState newState = state; // New block state to be implemented in world.
-        // Iterate over all positions and record the new state values, updating redstone value if needed.
+        // Iterate over all positions and recording bit flags and updating redstone value if needed.
         for(BookPosition bp: BookPosition.class.getEnumConstants()){
             ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
             if(!stack.isEmpty()) // If the slot isn't empty...
@@ -128,7 +124,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         }
         // Set the new state, notify the block's neighbors (if on server), but don't recalculate lighting updates.
         // Don't update pathfinding entities. Don't pass GO. Don't collect $200.
-        world.setBlockState(pos, newState, Block.NOTIFY_NEIGHBORS | Block.SKIP_LIGHTING_UPDATES);
+        world.setBlockState(pos, state, Block.NOTIFY_NEIGHBORS | Block.SKIP_LIGHTING_UPDATES);
         // Super calls World.markDirty() and possibly World.updateComparators(). We're already updating all neighbors,
         world.markDirty(pos); // so we'll just call world.markDirty().
         if(!world.isClient()) // If this is running on the server...

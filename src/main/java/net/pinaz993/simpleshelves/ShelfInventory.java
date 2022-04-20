@@ -28,7 +28,7 @@ public interface ShelfInventory extends SidedInventory {
      * @param stack the ItemStack in question
      * @return if the ItemStack in question is book-like.
      */
-    static boolean isBookLike(ItemStack stack){return ItemTags.BOOK_LIKE.contains(stack.getItem());}
+    static boolean isBookLike(ItemStack stack){return stack.isIn(ItemTags.BOOK_LIKE);}
 
     /**
      * This inventory has 16 slots. That is defined in ShelfBlockEntity.
