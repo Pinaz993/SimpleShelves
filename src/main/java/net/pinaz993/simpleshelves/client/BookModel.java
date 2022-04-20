@@ -61,7 +61,7 @@ public class BookModel {
 
     private final int HEAD_HORIZONTAL_OFFSET; // An offset to make the paper look different on different books.
 
-    private boolean enabled = false; // Should this book be rendered?
+    private final int BIT_MASK; // A bit mask for quickly determining whether this book is to be rendered.
 
     /**
      * Given a BookPosition to occupy, randomly determines the height and depth of the book (within static limits), and
@@ -70,8 +70,8 @@ public class BookModel {
      * @param random: A Random with a seed that depends on the seed of the world and the block position of the shelf.
      */
     public BookModel(BookPosition bookPosition, Random random){
-        boolean topShelf = bookPosition.getQuadrant() == ShelfQuadrant.ALPHA || // Is the book on the top shelf?
-                bookPosition.getQuadrant() == ShelfQuadrant.BETA;
+        boolean topShelf = bookPosition.getQuadrant() == ShelfQuadrant.ALPHA ||
+                bookPosition.getQuadrant() == ShelfQuadrant.BETA; // Is the book on the top shelf?
         // Calculate a random height between MIN_HEIGHT and MAX_HEIGHT. Add .5 if the book is on the top shelf.
         this.HEIGHT = MIN_HEIGHT * random.nextFloat() * (MAX_HEIGHT-MIN_HEIGHT) + (topShelf ? .5f : 0f);
         this.SHELF = topShelf ? 8f / 16f: 1f / 16f; // Set the height of SHELF.
@@ -86,6 +86,7 @@ public class BookModel {
         // Grab random textures for the head of the book and its cover.
         this.HEAD = BookTextureList.PAPER.getRandomSpriteID(random);
         this.COVER = BookTextureList.getCoverTextureList(PIXELS).getRandomSpriteID(random);
+        this.BIT_MASK = bookPosition.BIT_MASK;
     }
 
     /**
@@ -99,7 +100,7 @@ public class BookModel {
      */
     public void emitBookQuads(QuadEmitter e, Function<SpriteIdentifier, Sprite> tg) {
         // All points need to be ordered CCW to make sure that they render on the correct side.
-        // I wish I had known that already.
+        // I wish I had known that already. Would have saved me a lot of work.
         // Get the sprites.
         Sprite head = tg.apply(HEAD);
         Sprite cover = tg.apply(COVER);
@@ -163,10 +164,6 @@ public class BookModel {
         // For the final time for this book, apply the cover texture and emit.
         e.spriteBake(0, cover, MutableQuadView.BAKE_ROTATE_NONE).emit();
     }
-
-    public boolean isEnabled() {return enabled;}
-
-    public void setEnabled(boolean enabled) {this.enabled = enabled;}
 
     /**
      * Perhaps this is overkill to avoid magic numbers, but I'm fastidious. Give me a break.
