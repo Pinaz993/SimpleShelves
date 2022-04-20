@@ -18,11 +18,9 @@ import java.util.*;
 import java.util.function.Function;
 
 public class ShelfUnbakedModel implements UnbakedModel {
-    //TODO: Separate into UnbakedShelfModel and BakedShelfModel, because I don't like code soup.
-
     private static final Identifier ABSTRACT_SHELF_MODEL = new Identifier("simple:shelves:block/abstract_shelf");
     public final Identifier MODEL_ID;
-    // The collection of all quads that need to be rendered.
+    // The collection of all quads that need to be rendered. Is this needed while baking, or after baking?
     private Mesh mesh;
     // A thing that is important for reasons.
     private ModelTransformation transformation;
@@ -40,6 +38,7 @@ public class ShelfUnbakedModel implements UnbakedModel {
 
     @Override
     public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
+        //TODO: Add in the proper texture from the type of shelf. Does that mean I need another model for each shelf type?
         return BookModel.getAllSpriteIdentifiers();
     }
 
@@ -47,17 +46,33 @@ public class ShelfUnbakedModel implements UnbakedModel {
     @Override
     public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter,
                            ModelBakeSettings rotationContainer, Identifier modelId) {
+        // Plan is as follows:
+        // 1. Check to see if I can just return the cached model.
+        // 2. Apply Rotation
+        // 3. Render the shelf using the proper texture.
+        // 4. Iterate through all book positions and associated models and render whichever books need to be rendered.
+        // 5....
+        // 6. Profit
+
+        // I've been thinking about baking, and I think it basically comes down to defining what quads (normally triangles)
+        // need to be rendered, how they are positioned, what texture they use, and where on the texture to copy from.
+        // I've tackled that in BookModel, so I don't think it'll be too difficult. however, I don't like the idea that
+        // I'm going to have to hard code all the models. That way lies misery. I'd like to take advantage of the
+        // vanilla system of rendering JSON defined models, but I don't think that I'll be able to. In addition, I don't
+        // know enough to be able to engineer a solution that allows data-driven books to be rendered with the
+        // randomization that I'm trying to put into the mod. Who knows. Maybe I'll go through all this trouble and
+        // it'll look like crap anyway.
+
         // I need something called a transformation here. I think it has to do with the angle the item displays as in
         // an inventory. Split into two lines like this because there's no way to cast in-line. Java is dumb.
-        JsonUnbakedModel defaultBlockModel = (JsonUnbakedModel) loader.getOrLoadModel(ABSTRACT_SHELF_MODEL);
-        transformation = defaultBlockModel.getTransformations();
+        JsonUnbakedModel defaultShelfModel = (JsonUnbakedModel) loader.getOrLoadModel(ABSTRACT_SHELF_MODEL);
+        transformation = defaultShelfModel.getTransformations();
         // I don't know what any of these things are. Monkey see, Monkey do.
         Renderer renderer = RendererAccess.INSTANCE.getRenderer(); // This smells. Why is there a separate access class?
         MeshBuilder builder = renderer.meshBuilder();
-        QuadEmitter emitter = builder.getEmitter();
+        QuadEmitter emitter = builder.getEmitter(); // Actually, I know what to do with this one. I feed it point and UV
+        // coordinates.
 
         // TODO: Draw the rest of the owl.
-        // Bake just needs to return a Baked Model. That's literally the only thing it needs to do. This may be simpler
-        // than I thought.
     }
 }
