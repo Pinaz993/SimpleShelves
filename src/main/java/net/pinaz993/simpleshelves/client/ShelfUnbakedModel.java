@@ -23,13 +23,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public abstract class ShelfUnbakedModel implements UnbakedModel {
-    private static final Identifier ABSTRACT_SHELF_MODEL = new Identifier("simple:shelves:block/abstract_shelf");
-    public final Identifier MODEL_ID;
-    // The collection of all quads that need to be rendered. Is this needed while baking, or after baking?
-    private Mesh mesh;
-
     // Controls how the shelves are rendered in different non-block contexts. Usually defined in JSON.
-    private final ModelTransformation TRANSFORMATION = new ModelTransformation(
+    private static final ModelTransformation TRANSFORMATION = new ModelTransformation(
             new Transformation( // 3PP Left Hand
                     new Vec3f(75f, -45f, 0f),
                     new Vec3f(0f, 2.5f, 0),
@@ -71,6 +66,13 @@ public abstract class ShelfUnbakedModel implements UnbakedModel {
                     new Vec3f(.5f, .5f, .5f)
             )
     );
+
+    public final Identifier MODEL_ID;
+
+    // The collection of all quads that need to be rendered. Is this needed while baking, or after baking?
+    private Mesh mesh;
+
+    //TODO: Make a member variable for the texture to apply to the shelf, and set it's value during construction.
 
     public ShelfUnbakedModel(Identifier id) {
         MODEL_ID = id;
@@ -115,7 +117,9 @@ public abstract class ShelfUnbakedModel implements UnbakedModel {
         QuadEmitter emitter = builder.getEmitter(); // Actually, I know what to do with this one. I feed it point and UV
         // coordinates.
 
-        // TODO: Draw the rest of the owl.
+        // TODO: Figure out how to apply rotations to a model you're baking before you start defining quads.
+        // TODO: Implement shelf rendering using data taken from abstract_shelf.json.
+        // TODO: Implement Book Rendering based on bit flags and masks.
 
         return null;
     }

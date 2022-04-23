@@ -12,13 +12,15 @@ public class ShelfModelProvider implements ModelResourceProvider {
     /*
     * A lot of the work I was planning on putting in ShelfUnbakedModel.bake() is going to have to go in here. As such,
     * here is a list of features this class will have to implement:
-    * * Baked model caching: perhaps using BakedModelCache? I don't know how to compare the baking requirements to the
-    *   baked model. Perhaps a random seed that is combined from the world seed and the BlockPos, combined with
-    *   the BitFlagContainer's value. That would allow for a hash to be generated that can then be stored as part of a
-    *   HashMap. ModelLoader does this using a Triple as one part of the HashMap. I'll have to look up how that works.
+    * * Baked model caching: I don't know how to compare the baking requirements to the baked model. Perhaps a random
+    *   seed that is combined from the world seed and the BlockPos, combined with the BitFlagContainer's value. That
+    *   would allow for a hash to be generated that can then be stored as part of a HashMap. ModelLoader does this using
+    *   a Triple as one part of the HashMap. I'll have to look up how that works.
+    * * World block information fetching. Not sure if this can even be done here. Heck, I don't even know if this can do
+    *   baking on the fly!
     * * */
 
-    // If you wanted to add additional shelves in a dependant mod, you'll need to reimplement this class much as I have.
+    // If you want to add additional shelves in a dependant mod, you'll need to reimplement this class much as I have.
 
     // To nip any possible model resource loading conflicts, only these Identifiers will be processed.
     public static final List<Identifier> VALID_SHELF_MODELS = List.of(
@@ -36,7 +38,9 @@ public class ShelfModelProvider implements ModelResourceProvider {
     @Override
     public @Nullable UnbakedModel loadModelResource(Identifier resourceId, ModelProviderContext context) {
         if(VALID_SHELF_MODELS.contains(resourceId)){
-            //TODO: Figure out how to render a gosh darned shelf.
+            //TODO: Figure out how to get all the information needed to render the shelf into the unbaked model before
+            // baking.
+            //TODO: Figure out how to store cached baked models based on position, rotation, and possibly world seed.
             return null;
         } else return null;
     }
