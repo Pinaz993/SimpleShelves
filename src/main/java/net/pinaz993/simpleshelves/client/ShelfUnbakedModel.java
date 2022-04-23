@@ -107,12 +107,16 @@ public abstract class ShelfUnbakedModel implements UnbakedModel {
 
         // Here are things I know I'll have to do:
 
-        // I don't know what any of these things are. Monkey see, Monkey do.
+        // Grab Renderer
         Renderer renderer = RendererAccess.INSTANCE.getRenderer(); // This smells. Why is there a separate access class?
+        // Grab mesh builder, not sure it does
         MeshBuilder builder = renderer.meshBuilder();
+        // Grab quad emitter
         QuadEmitter emitter = builder.getEmitter(); // Actually, I know what to do with this one. I feed it point and UV
         // coordinates.
 
         // TODO: Draw the rest of the owl.
+
+        return null;
     }
 }

@@ -35,6 +35,9 @@ public class ShelfModelProvider implements ModelResourceProvider {
 
     @Override
     public @Nullable UnbakedModel loadModelResource(Identifier resourceId, ModelProviderContext context) {
-        return null;
+        if(VALID_SHELF_MODELS.contains(resourceId)){
+            //TODO: Figure out how to render a gosh darned shelf.
+            return null;
+        } else return null;
     }
 }
