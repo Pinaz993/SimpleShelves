@@ -18,7 +18,7 @@ import static net.minecraft.util.math.MathHelper.abs;
 
 /* Represents the four quads that need to be created to render a book on a shelf. Contains a constructor that randomly
    determines the book's variable qualities, and a method for emitting the proper quads. 12 of these objects exist for
-   every shelf in client-loaded chunks. Be ware.
+   every shelf in client-loaded chunks. Beware.
  */
 public class BookModel {
 
@@ -61,7 +61,7 @@ public class BookModel {
 
     private final int HEAD_HORIZONTAL_OFFSET; // An offset to make the paper look different on different books.
 
-    private final int BIT_MASK; // A bit mask for quickly determining whether this book is to be rendered.
+    public final int BIT_MASK; // A bit mask for quickly determining whether this book is to be rendered.
 
     /**
      * Given a BookPosition to occupy, randomly determines the height and depth of the book (within static limits), and

@@ -19,35 +19,24 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public class ShelfBakedModel implements BakedModel, FabricBakedModel {
+public abstract class ShelfBakedModel implements BakedModel, FabricBakedModel {
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, Random random) {
         return null;
     }
 
     @Override
-    public boolean useAmbientOcclusion() {
-        return false;
-    }
+    public boolean useAmbientOcclusion() {return false;}
 
     @Override
-    public boolean hasDepth() {
-        return false;
-    }
+    public boolean hasDepth() {return false;}
 
     @Override
-    public boolean isSideLit() {
-        return true;
-    }
+    public boolean isSideLit() {return true;}
 
     @Override
     public boolean isBuiltin() {
         return false;
-    }
-
-    @Override
-    public Sprite getParticleSprite() {
-        return null;
     }
 
     @Override
