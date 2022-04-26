@@ -1,28 +1,30 @@
 package net.pinaz993.simpleshelves.client;
 
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
-import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelBakeSettings;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.render.model.json.JsonUnbakedModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.render.model.json.Transformation;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3f;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 public abstract class ShelfUnbakedModel implements UnbakedModel {
+    //<editor-fold desc="Static Stuff">
     // Controls how the shelves are rendered in different non-block contexts. Usually defined in JSON.
     private static final ModelTransformation TRANSFORMATION = new ModelTransformation(
             new Transformation( // 3PP Left Hand
@@ -67,45 +69,59 @@ public abstract class ShelfUnbakedModel implements UnbakedModel {
             )
     );
 
-    public final Identifier MODEL_ID;
+    public static final List<SpriteIdentifier> SPRITE_IDENTIFIERS = List.of(
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_paper")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_one_px_alpha")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_two_px_alpha")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_two_px_beta")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_two_px_gamma")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_two_px_delta")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_three_px_alpha")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_three_px_beta")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_three_px_gamma")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_three_px_delta")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_three_px_epsilon")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_four_px_alpha")),
+            new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, new Identifier("simple_shelves:block/book_four_px_beta"))
+    );
+    //</editor-fold>
 
-    // The collection of all quads that need to be rendered. Is this needed while baking, or after baking?
-    private Mesh mesh;
+    public final Identifier MODEL_ID, TEXTURE_ID;
 
-    //TODO: Make a member variable for the texture to apply to the shelf, and set it's value during construction.
+    public ShelfUnbakedModel(Identifier modelId, Identifier textureID) {
+        MODEL_ID = modelId;
+        TEXTURE_ID = textureID;
+    }
 
-    public ShelfUnbakedModel(Identifier id) {
-        MODEL_ID = id;
+    //<editor-fold desc="Dependencies">
+    @Override
+    public Collection<Identifier> getModelDependencies() {
+        return null;
     }
 
     @Override
-    public Collection<Identifier> getModelDependencies() {
-        return List.of(
-                new Identifier("simple_shelves:abstract_shelf")
-        );
+    public Collection<SpriteIdentifier> getTextureDependencies(Function<Identifier, UnbakedModel> unbakedModelGetter, Set<Pair<String, String>> unresolvedTextureReferences) {
+        List<SpriteIdentifier> rtn = new java.util.ArrayList<>(List.copyOf(SPRITE_IDENTIFIERS));
+        rtn.add(new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, TEXTURE_ID));
+        return rtn;
     }
+    //</editor-fold>
 
     @Nullable
     @Override
     public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter,
                            ModelBakeSettings rotationContainer, Identifier modelId) {
         /*
-        * I can't exactly plan this out right now. There are some serious issues with the process. I think I'm going to
-        * need a custom ModelResourceProvider, as this bake method does NOT have a way to get block entity data, nor a way to
-        * receive it, short of something unconventional like slipping it into modelId. That being said, here are some
-        * things I've learned from poking about:
-        * * ModelTransformation instances contain the data needed to display the block as an item in a frame, on an
-        *   entities head, or otherwise. I'll need to statically define that, because...
+        * Here are some things I've learned from poking about:
         * * I might as well hard code everything, because the books aren't going to be JSON modifiable. Also, who would
         *   want to make custom models for my little mod? It's not as if I'm going to become famous for this.
-        * * It looks like there'll be a way to use modelId to dynamically figure out what texture to use, though I think
-        *   that part WILL involve JSON. I'll just need to use a JSON deserializer to get the texture ID for the shelf,
-        *   and hopefully that'll be enough. Who knows? Maybe this will lead to data-driven shelves!
+        * * ShelfModelProvider will have to instantiate each ShelfUnbakedModel instance with references to the proper
+        *   block texture.
+        * * As it turns out, all books need to be baked into the model, as choosing which books to render can only be
+        *   done with world information that can only be obtained in FabricBakedModel.emitBlockQuads(). Thus, here I
+        *   only need to provide the quads and textures to the shelf itself, as the book textures will have to be chosen
+        *   upon the first chunk rebuild.
         */
-
-        // I've been thinking about baking, and I think it basically comes down to defining what quads (normally triangles)
-        // need to be rendered, how they are positioned, what texture they use, and where on the texture to copy from.
-        // I've tackled that in BookModel, so I don't think it'll be too difficult.
 
         // Here are things I know I'll have to do:
 
@@ -119,7 +135,6 @@ public abstract class ShelfUnbakedModel implements UnbakedModel {
 
         // TODO: Figure out how to apply rotations to a model you're baking before you start defining quads.
         // TODO: Implement shelf rendering using data taken from abstract_shelf.json.
-        // TODO: Implement Book Rendering based on bit flags and masks.
 
         return null;
     }
