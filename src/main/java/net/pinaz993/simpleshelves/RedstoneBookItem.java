@@ -46,7 +46,7 @@ public class RedstoneBookItem extends WrittenBookItem {
             String string = nbtCompound.getString("author"); // Grab the NBT string value for the value 'author'.
             if (!string.isEmpty()) { // If THAT exists...
                 // Add a tool tip that proclaims the author's name.
-                tooltip.add((Text.translatable("book.byAuthor", string)));
+                tooltip.add((Text.translatable("book.byAuthor", string)).formatted(Formatting.GRAY));
             // Otherwise, add a tooltip that proclaims the author to be 'Pinaz993'.
             } else tooltip.add((Text.translatable("book.byAuthor", "Pinaz993")).formatted(Formatting.GRAY));
         // Otherwise, add a tooltip that proclaims the author to be 'Pinaz993'.
