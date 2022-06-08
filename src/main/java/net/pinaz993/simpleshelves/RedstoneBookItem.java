@@ -8,7 +8,6 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.WrittenBookItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +26,7 @@ public class RedstoneBookItem extends WrittenBookItem {
 
     @Override
     public Text getName(ItemStack stack) {
-        return new TranslatableText("Redstone"); // This item is always named 'Redstone'.
+        return Text.translatable("Redstone"); // This item is always named 'Redstone'.
     }
 
     @Override
@@ -47,20 +46,20 @@ public class RedstoneBookItem extends WrittenBookItem {
             String string = nbtCompound.getString("author"); // Grab the NBT string value for the value 'author'.
             if (!string.isEmpty()) { // If THAT exists...
                 // Add a tool tip that proclaims the author's name.
-                tooltip.add((new TranslatableText("book.byAuthor", string)).formatted(Formatting.GRAY));
+                tooltip.add((Text.translatable("book.byAuthor", string)));
             // Otherwise, add a tooltip that proclaims the author to be 'Pinaz993'.
-            } else tooltip.add((new TranslatableText("book.byAuthor", "Pinaz993")).formatted(Formatting.GRAY));
+            } else tooltip.add((Text.translatable("book.byAuthor", "Pinaz993")).formatted(Formatting.GRAY));
         // Otherwise, add a tooltip that proclaims the author to be 'Pinaz993'.
-        } else tooltip.add((new TranslatableText("book.byAuthor", "Pinaz993")).formatted(Formatting.GRAY));
+        } else tooltip.add(( Text.translatable("book.byAuthor", "Pinaz993")).formatted(Formatting.GRAY));
         // Add a tooltip that says this item is the original copy, much like a book would.
-        tooltip.add(new TranslatableText("book.generation.0").formatted(Formatting.GRAY));
+        tooltip.add( Text.translatable("book.generation.0").formatted(Formatting.GRAY));
     }
 
     @Override
     public void onCraft(ItemStack stack, World world, PlayerEntity player) {
         NbtCompound nbt = new NbtCompound(); // Make a new NBT compound.
         // Set the value associated with the 'author' key to the name of the player who crafted the item.
-        nbt.putString("author", player.getName().asString());
+        nbt.putString("author", player.getName().getString());
         stack.setNbt(nbt); // Apply the NBT to the item.
     }
 }
