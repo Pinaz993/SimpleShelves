@@ -19,7 +19,37 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public abstract class ShelfBakedModel implements BakedModel, FabricBakedModel {
+public class ShelfBakedModel implements BakedModel, FabricBakedModel {
+    /*
+    * What if I've been trying to do this all wrong? I've been trying to get information from the block entity in here,
+    * but what if that's not possible? In that case, block state properties are still my best bet. Also, as far as
+    * the randomness of the models go, that's a separate problem I can tackle later. First, I should try to get the
+    * model baking working.
+    *
+    * I do have another idea for that. Perhaps, when the BE is initialized, I can create an integer block state
+    * property that is a hash of the position in the world. That can then be used as the seed for any randomness needed
+    * to bake the model. From there, it's just setting up a performant and compact way to create the models once and
+    * cache them, as well as a performant way to look them up and determine if the work has already been done. A HashSet
+    * should work for that, I think.
+    *
+    *
+    * It looks like several of the steps to rendering a specific block that I at first attributed to ShelfUnbakedModel,
+    * then to ShelfModelProvider actually belong here. For one, because of FabricBakedModel, it turns out that the only
+    * time I can get access to world information for special rendering is in emitBlockQuads(). This means that I need
+    * to pass all books into BakedModelInstances, and that I need to choose upon each chunk rebuild which books will be
+    * displayed.
+    * */
+
+    @Override
+    public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+
+    }
+
+    @Override
+    public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
+
+    }
+
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, Random random) {
         return null;
@@ -40,6 +70,12 @@ public abstract class ShelfBakedModel implements BakedModel, FabricBakedModel {
     }
 
     @Override
+    public Sprite getParticleSprite() {
+        //TODO: Get sprites.
+        return null;
+    }
+
+    @Override
     public ModelTransformation getTransformation() {
         return null;
     }
@@ -51,15 +87,5 @@ public abstract class ShelfBakedModel implements BakedModel, FabricBakedModel {
     @Override
     public boolean isVanillaAdapter() {
         return false;
-    }
-
-    @Override
-    public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-
-    }
-
-    @Override
-    public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
-
     }
 }
