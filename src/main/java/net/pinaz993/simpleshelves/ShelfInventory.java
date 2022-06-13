@@ -29,7 +29,7 @@ public interface ShelfInventory extends SidedInventory {
      * @return if the ItemStack in question is book-like.
      */
     // Tags are wierd now. You have to get the registry entry of the item stack, and then you can ask if it's in a tag.
-    static boolean isBookLike(ItemStack stack){return stack.getRegistryEntry().isIn(ItemTags.BOOK_LIKE);}
+    static boolean isBookLike(ItemStack stack){return stack.getItem().getRegistryEntry().isIn(ItemTags.BOOK_LIKE);}
 
     /**
      * This inventory has 16 slots. That is defined in ShelfBlockEntity.
