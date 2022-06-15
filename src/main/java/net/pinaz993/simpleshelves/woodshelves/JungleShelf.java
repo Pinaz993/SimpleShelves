@@ -1,12 +1,14 @@
-package net.pinaz993.simpleshelves;
+package net.pinaz993.simpleshelves.woodshelves;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
+import net.pinaz993.simpleshelves.AbstractShelf;
+import net.pinaz993.simpleshelves.ShelfEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class SpruceShelf extends AbstractShelf {
-    public SpruceShelf(Settings settings) {
+public class JungleShelf extends AbstractShelf {
+    public JungleShelf(Settings settings) {
         super(settings);
     }
 
