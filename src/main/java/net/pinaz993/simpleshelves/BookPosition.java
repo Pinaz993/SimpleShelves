@@ -7,30 +7,29 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public enum BookPosition {
-    ALPHA_1(0, AbstractShelf.BOOK_ALPHA_1, 3),
-    ALPHA_2(1, AbstractShelf.BOOK_ALPHA_2, 1),
-    ALPHA_3(2, AbstractShelf.BOOK_ALPHA_3, 4),
-    BETA_1(3, AbstractShelf.BOOK_BETA_1, 2),
-    BETA_2(4, AbstractShelf.BOOK_BETA_2, 3),
-    BETA_3(5, AbstractShelf.BOOK_BETA_3, 3),
-    GAMMA_1(6, AbstractShelf.BOOK_GAMMA_1, 3),
-    GAMMA_2(7, AbstractShelf.BOOK_GAMMA_2, 2),
-    GAMMA_3(8, AbstractShelf.BOOK_GAMMA_3, 3),
-    DELTA_1(9, AbstractShelf.BOOK_DELTA_1, 2),
-    DELTA_2(10, AbstractShelf.BOOK_DELTA_2, 4),
-    DELTA_3(11, AbstractShelf.BOOK_DELTA_3, 2);
+    ALPHA_1(0, 3, 0b000_000_000_001),
+    ALPHA_2(1, 1, 0b000_000_000_010),
+    ALPHA_3(2, 4, 0b000_000_000_100),
+    BETA_1( 3, 2, 0b000_000_001_000),
+    BETA_2( 4, 3, 0b000_000_010_000),
+    BETA_3( 5, 3, 0b000_000_100_000),
+    GAMMA_1(6, 3, 0b000_001_000_000),
+    GAMMA_2(7, 2, 0b000_010_000_000),
+    GAMMA_3(8, 3, 0b000_100_000_000),
+    DELTA_1(9, 2, 0b001_000_000_000),
+    DELTA_2(10,4, 0b010_000_000_000),
+    DELTA_3(11,2, 0b100_000_000_000);
 
 
     public final int SLOT; // The index of the slot that this book position stores books in.
-    // The property that tells the model loading system whether to load this book or not.
-    public final BooleanProperty BLOCK_STATE_PROPERTY;
     // How wide this book is.
     public final double WIDTH;
+    public final int BIT_FLAG; // A bit mask for use in quickly determining which books to render client-side.
 
-    BookPosition(int slot, BooleanProperty blockStateProperty, int pixels) {
+    BookPosition(int slot, int pixels, int bitFlag) {
         this.SLOT = slot;
-        this.BLOCK_STATE_PROPERTY = blockStateProperty;
         this.WIDTH = pixels *.0625;
+        this.BIT_FLAG = bitFlag;
     }
 
     /** When the player uses this block, calculate which book they're clicking on.
