@@ -10,7 +10,6 @@ import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.render.model.json.Transformation;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
@@ -95,10 +94,17 @@ public class UnbakedShelfModel implements UnbakedModel {
     @Nullable
     @Override
     public BakedModel bake(ModelLoader loader, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId) {
-        // Here I'll have to do several things.
-        // TODO: Implement grabbing the texture for the shelf.
-        // TODO: Compile vertices for shelf.
-        // As for the books, I have two choices. A baked model has
+        // I have questions.
+        // Do I have to handle rotation here, or can I simply use the block state inherent in horizontal facing block?
+        // Can my baked model have a field for its texture, or will that be an issue?
+        // How do I cache a baked model? I only need to bake four models per shelf. I don't want to do that over again.
+
+        // It looks like this is the only place I'll be able to get a mesh builder.
+        // I think that means that an unbaked model's responsibility is to build meshes. A baked model's responsibility
+        // seems to be choosing which mesh to send to the renderer.
+        // Because of that, I need to bake the meshes for all 12 books now. This does not bode well for randomizing the
+        // appearance of books based on position. I simply won't have that info until FabricBakedModel.emitBlockQuads().
+        // One thing is clear. I'm going to need one mesh for the shelf itself, and one for each book.
         return null;
     }
 }
