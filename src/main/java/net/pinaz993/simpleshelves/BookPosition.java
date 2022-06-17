@@ -3,13 +3,12 @@ package net.pinaz993.simpleshelves;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.List;
 
 public enum BookPosition {
     ALPHA_1(0, 3, 6.74f, 6.8f, 0b000_000_000_001),
@@ -135,7 +134,7 @@ public enum BookPosition {
             if(bp == this) return rtn; // Stop and return if we've reached this book.
             rtn += bp.WIDTH; // Add width to the return value iff we're not done.
         }
-        throw new IllegalArgumentException("Book Position " + this.toString()
+        throw new IllegalArgumentException("Book Position " + this
                 + " is not located in Shelf Quadrant " + quadrant);
     }
 
@@ -148,17 +147,47 @@ public enum BookPosition {
             rtn += bp.WIDTH; // Add width to the return value iff we're not done.
             if(bp == this) return rtn; // Stop and return if we've reached this book.
         }
-        throw new IllegalArgumentException("Book Position " + this.toString()
+        throw new IllegalArgumentException("Book Position " + this
                 + " is not located in Shelf Quadrant " + quadrant);
     }
 
     @Environment(EnvType.CLIENT)
     public void emitBookQuads(QuadEmitter e) {
-        // Get the left and right edge coordinates
+        // Get the left edge, and right edge and bottom coordinates
         ShelfQuadrant q = this.getQuadrant();
         float left = this.getLeftEdge(q);
         float right = this.getRightEdge(q);
+        // If the book is in the alpha or beta quadrants (AKA top shelf),
+        // the bottom of the book should be at 9/16. Else, 1/16.
+        // I'm pretty sure the List gets marked for garbage collection after this line.
+        float shelf = List.of(ShelfQuadrant.ALPHA, ShelfQuadrant.BETA).contains(q) ? 9/16f : 1/16f;
         // First, the head face.
         e.pos(0, left, HEIGHT, Z_BACK_STOP);
+        e.pos(1, left, HEIGHT, DEPTH);
+        e.pos(2, right, HEIGHT, DEPTH);
+        e.pos(3, right, HEIGHT, Z_BACK_STOP);
+        // Sprite work:
+        //TODO: Sprite work
+
+        // Next, the rear cover.
+        e.pos(0, left, HEIGHT, Z_BACK_STOP);
+        e.pos(1, left, shelf, Z_BACK_STOP);
+        e.pos(2, left, shelf, DEPTH);
+        e.pos(3, left, HEIGHT, DEPTH);
+        // Sprite work:
+
+        // Now, the spine.
+        e.pos(0, left, HEIGHT, DEPTH);
+        e.pos(1, left, shelf, DEPTH);
+        e.pos(2, right, shelf, DEPTH);
+        e.pos(3, right, HEIGHT, DEPTH);
+        // Sprite work:
+
+        // Finally, the front cover.
+        e.pos(0, right, HEIGHT, DEPTH);
+        e.pos(1, right, shelf, DEPTH);
+        e.pos(2, right, shelf, Z_BACK_STOP);
+        e.pos(3, right, HEIGHT, Z_BACK_STOP);
+        // Sprite work
     }
 }
