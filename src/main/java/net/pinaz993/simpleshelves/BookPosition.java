@@ -4,6 +4,9 @@ package net.pinaz993.simpleshelves;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+import net.minecraft.client.util.SpriteIdentifier;
+import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -11,35 +14,28 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 public enum BookPosition {
-    ALPHA_1(0, 3, 6.74f, 6.8f, 0b000_000_000_001),
-    ALPHA_2(1, 1, 6.52f, 7.0f, 0b000_000_000_010),
-    ALPHA_3(2, 4, 7.13f, 6.6f, 0b000_000_000_100),
-    BETA_1( 3, 2, 6.07f, 6.5f, 0b000_000_001_000),
-    BETA_2( 4, 3, 5.97f, 6.4f, 0b000_000_010_000),
-    BETA_3( 5, 3, 6.25f, 7.4f, 0b000_000_100_000),
-    GAMMA_1(6, 3, 6.99f, 5.7f, 0b000_001_000_000),
-    GAMMA_2(7, 2, 6.62f, 6.2f, 0b000_010_000_000),
-    GAMMA_3(8, 3, 6.79f, 6.6f, 0b000_100_000_000),
-    DELTA_1(9, 2, 5.75f, 6.0f, 0b001_000_000_000),
-    DELTA_2(10,4, 6.76f, 7.2f, 0b010_000_000_000),
-    DELTA_3(11,2, 6.65f, 6.2f, 0b100_000_000_000);
+    ALPHA_1(0, 3),// Top Left Most
+    ALPHA_2(1, 1),
+    ALPHA_3(2, 4),
+    BETA_1( 3, 2),
+    BETA_2( 4, 3),
+    BETA_3( 5, 3),// Top Right Most
+    GAMMA_1(6, 3),// Bottom Left Most
+    GAMMA_2(7, 2),
+    GAMMA_3(8, 3),
+    DELTA_1(9, 2),
+    DELTA_2(10,4),
+    DELTA_3(11,2); // Bottom Right Most
 
-    // The Z coordinate of the front surface of the rear plate of the shelf. This is as low in Z as a vertex can be.
-    private static final float Z_BACK_STOP = 1 / 16f;
 
     public final int SLOT; // The index of the slot that this book position stores books in.
     public final float WIDTH; // Width in meters from front cover to rear cover
-    public final float HEIGHT; // Length in meters from top to bottom
-    public final float DEPTH; // Length in meters from spine to rear shelf
-    public final int BIT_FLAG; // A bit mask for use in quickly determining which books to render client-side
 
-    BookPosition(int slot, int width, float height, float depth, int bitFlag) {
+    BookPosition(int slot, int width) {
         this.SLOT = slot;
-        // Since all measurements here are provided in pixels, divide by 16 to get measurements in meters.
+        // Since this is provided in pixels, divide by 16 to get measurement in meters.
         this.WIDTH = width/16f;
-        this.HEIGHT = height/16f;
-        this.DEPTH = depth/16f;
-        this.BIT_FLAG = bitFlag;
+
     }
 
     /** When the player uses this block, calculate which book they're clicking on.
@@ -149,45 +145,5 @@ public enum BookPosition {
         }
         throw new IllegalArgumentException("Book Position " + this
                 + " is not located in Shelf Quadrant " + quadrant);
-    }
-
-    @Environment(EnvType.CLIENT)
-    public void emitBookQuads(QuadEmitter e) {
-        // Get the left edge, and right edge and bottom coordinates
-        ShelfQuadrant q = this.getQuadrant();
-        float left = this.getLeftEdge(q);
-        float right = this.getRightEdge(q);
-        // If the book is in the alpha or beta quadrants (AKA top shelf),
-        // the bottom of the book should be at 9/16. Else, 1/16.
-        // I'm pretty sure the List gets marked for garbage collection after this line.
-        float shelf = List.of(ShelfQuadrant.ALPHA, ShelfQuadrant.BETA).contains(q) ? 9/16f : 1/16f;
-        // First, the head face.
-        e.pos(0, left, HEIGHT, Z_BACK_STOP);
-        e.pos(1, left, HEIGHT, DEPTH);
-        e.pos(2, right, HEIGHT, DEPTH);
-        e.pos(3, right, HEIGHT, Z_BACK_STOP);
-        // Sprite work:
-        //TODO: Sprite work
-
-        // Next, the rear cover.
-        e.pos(0, left, HEIGHT, Z_BACK_STOP);
-        e.pos(1, left, shelf, Z_BACK_STOP);
-        e.pos(2, left, shelf, DEPTH);
-        e.pos(3, left, HEIGHT, DEPTH);
-        // Sprite work:
-
-        // Now, the spine.
-        e.pos(0, left, HEIGHT, DEPTH);
-        e.pos(1, left, shelf, DEPTH);
-        e.pos(2, right, shelf, DEPTH);
-        e.pos(3, right, HEIGHT, DEPTH);
-        // Sprite work:
-
-        // Finally, the front cover.
-        e.pos(0, right, HEIGHT, DEPTH);
-        e.pos(1, right, shelf, DEPTH);
-        e.pos(2, right, shelf, Z_BACK_STOP);
-        e.pos(3, right, HEIGHT, Z_BACK_STOP);
-        // Sprite work
     }
 }
