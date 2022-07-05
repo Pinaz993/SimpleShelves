@@ -13,7 +13,7 @@ import net.pinaz993.simpleshelves.ShelfQuadrant;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public enum UnbakedBookMesh {
+public enum BookQuadEmitter {
     ALPHA_1(BookPosition.ALPHA_1, 6.74f, 6.8f, 0b000_000_000_001,
             new Vec2f(0, 0), new Vec2f(6/16f, 1/16f)),
     ALPHA_2(BookPosition.ALPHA_2, 6.52f, 7.0f, 0b000_000_000_010,
@@ -58,7 +58,7 @@ public enum UnbakedBookMesh {
                        SPINE_UV_V0, SPINE_UV_V1, SPINE_UV_V2, SPINE_UV_V3,
                        FRONT_UV_V0, FRONT_UV_V1, FRONT_UV_V2, FRONT_UV_V3;
 
-    UnbakedBookMesh(BookPosition bookPosition, float height, float depth, int bitFlag,
+    BookQuadEmitter(BookPosition bookPosition, float height, float depth, int bitFlag,
                     Vec2f coverUpperLeftCorner, Vec2f headUpperLeftCorner){
         this.POSITION = bookPosition;
         this.HEIGHT = height/16f;
@@ -69,8 +69,8 @@ public enum UnbakedBookMesh {
         final float HEIGHT_TEXTURE_OFFSET = DEPTH_TEXTURE_OFFSET; // All books are as tall as their covers are wide.
         final float FRONT_OFFSET = DEPTH_TEXTURE_OFFSET + POSITION.WIDTH; // The width of the rear cover plus the width of the spine.
         final float RIGHT_EDGE_OFFSET = FRONT_OFFSET + DEPTH_TEXTURE_OFFSET; // The width of both covers plus the width of the spine.
-        // Defining all of those constants may seem excessive, but I am not about to allow magic numbers to creep into my code.
         // Calculate the UV coordinates for the sprite once per book model.
+        // Defining all of those constants may seem excessive, but I am not about to allow magic numbers to creep into my code.
         // Head UVs
         this.HEAD_UV_V0 = headUpperLeftCorner; // Upper Left
         this.HEAD_UV_V1 = new Vec2f( headUpperLeftCorner.x,
@@ -107,6 +107,24 @@ public enum UnbakedBookMesh {
                 coverUpperLeftCorner.y); // Upper Right
     }
 
+    /**
+     * Sets the sprite coordinates for a single quad. Takes in the quad emitter and the uv coordinates for the
+     * upper left and lower right corners of the quad.
+     * Scales the sprite to make it possible to enter in pixel coordinates.
+     * @param e The quad emitter keeping track of all this crap.
+     * @param u0 The u (horizontal) coordinate of the upper left point for the quad, measured in px.
+     * @param v0 The v (vertical) coordinate of the upper left point for the quad, measured in px.
+     * @param u2 The u (horizontal) coordinate of the lower right point for the quad, measured in px.
+     * @param v2 The v (vertical) coordinate of the lower right point for the quad, measured in px.
+     */
+    private void positionSprite(QuadEmitter e, int u0, int v0, int u2, int v2) {
+        // Divide u coords by 4 because the texture is 64 pixels wide.
+        // Divide v coords by 2 because the texture is 32 pixels tall.
+        e.sprite(0, 0, u0/4f, v0/2f); // Upper left corner
+        e.sprite(1, 0, u0/4f, v2/2f); // Lower left corner
+        e.sprite(2, 0, u2/4f, v2/2f); // Lower right corner
+        e.sprite(3, 0, u2/4f, v0/2f); // Upper Right Corner
+    }
 
     public void emitBookQuads(QuadEmitter e) {
         // Get the left edge, and right edge and bottom coordinates
