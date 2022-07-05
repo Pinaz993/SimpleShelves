@@ -40,6 +40,8 @@ public class ShelfModelProvider implements ModelResourceProvider {
             for(ModelIdentifier mi: MODEL_IDS) {// Iterate through all the model IDs
                 if (resourceId.getPath().equals(mi.getPath())) // Does the ID in question have the same path as the current model ID?
                     return new UnbakedShelfModel(); // Yes. Return a new shelf model.
+                else if (resourceId.getPath().contains("item")) // Does the path indicate that this is an item model?
+                    return new UnbakedShelfModel(); // Yes. Return a new shelf model.
             }
         }
         return null; // Nope. Pass.
