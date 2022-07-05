@@ -1,16 +1,16 @@
 {
   "variants": {
     "facing=east": {
-      "model": "simple_shelves/acacia_shelf"
+      "model": "simple_shelves:block/acacia_shelf"
     },
     "facing=north": {
-      "model": "simple_shelves/acacia_shelf"
+      "model": "simple_shelves:block/acacia_shelf"
     },
     "facing=south": {
-      "model": "simple_shelves/acacia_shelf"
+      "model": "simple_shelves:block/acacia_shelf"
     },
     "facing=west": {
-      "model": "simple_shelves/acacia_shelf"
+      "model": "simple_shelves:block/acacia_shelf"
     }
   }
 }
