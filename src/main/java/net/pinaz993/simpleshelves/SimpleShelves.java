@@ -14,6 +14,8 @@ import net.minecraft.util.registry.Registry;
 import net.pinaz993.simpleshelves.woodshelves.*;
 
 public class SimpleShelves implements ModInitializer {
+    public static final String NAMESPACE = "simple_shelves";
+
     public static final FabricBlockSettings WOOD_SHELF_SETTINGS = FabricBlockSettings.of(Material.WOOD)
             .strength(1.5f, 1.5f);
 
@@ -32,39 +34,40 @@ public class SimpleShelves implements ModInitializer {
     @Override
     public void onInitialize() {
         // Register Blocks
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "oak_shelf"), OAK_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "birch_shelf"), BIRCH_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "spruce_shelf"), SPRUCE_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "jungle_shelf"), JUNGLE_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "acacia_shelf"), ACACIA_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "dark_oak_shelf"), DARK_OAK_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "crimson_shelf"), CRIMSON_SHELF);
-        Registry.register(Registry.BLOCK, new Identifier("simple_shelves", "warped_shelf"), WARPED_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "oak_shelf"), OAK_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "birch_shelf"), BIRCH_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "spruce_shelf"), SPRUCE_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "jungle_shelf"), JUNGLE_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "acacia_shelf"), ACACIA_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "dark_oak_shelf"), DARK_OAK_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "crimson_shelf"), CRIMSON_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "warped_shelf"), WARPED_SHELF);
 
         // Register BlockItems
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "oak_shelf"), // OAK_SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "oak_shelf"), // OAK_SHELF
                 new BlockItem(OAK_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "birch_shelf"), //BIRCH SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "birch_shelf"), //BIRCH SHELF
                 new BlockItem(BIRCH_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "spruce_shelf"), //SPRUCE SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "spruce_shelf"), //SPRUCE SHELF
                 new BlockItem(SPRUCE_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "jungle_shelf"), //JUNGLE SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "jungle_shelf"), //JUNGLE SHELF
                 new BlockItem(JUNGLE_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "acacia_shelf"), //ACACIA SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "acacia_shelf"), //ACACIA SHELF
                 new BlockItem(ACACIA_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "dark_oak_shelf"), //DARK OAK SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "dark_oak_shelf"), //DARK OAK SHELF
                 new BlockItem(DARK_OAK_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "crimson_shelf"), //CRIMSON SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "crimson_shelf"), //CRIMSON SHELF
                 new BlockItem(CRIMSON_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "warped_shelf"), //WARPED SHELF
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "warped_shelf"), //WARPED SHELF
                 new BlockItem(WARPED_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
 
         // Register Items
-        Registry.register(Registry.ITEM, new Identifier("simple_shelves", "redstone_book"), REDSTONE_BOOK);
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "redstone_book"), REDSTONE_BOOK);
 
         // Register BlockEntity
         SHELF_BLOCK_ENTITY = Registry.register(
-                Registry.BLOCK_ENTITY_TYPE, "simple_shelves:shelf_block_entity",
+                Registry.BLOCK_ENTITY_TYPE,
+                NAMESPACE.concat(":shelf_block_entity"),
                 FabricBlockEntityTypeBuilder.create(ShelfEntity::new,
                         OAK_SHELF, BIRCH_SHELF, SPRUCE_SHELF, JUNGLE_SHELF,
                         ACACIA_SHELF, DARK_OAK_SHELF, CRIMSON_SHELF, WARPED_SHELF
