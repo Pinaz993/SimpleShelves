@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
 import net.pinaz993.simpleshelves.SimpleShelves;
 import net.pinaz993.simpleshelves.client.woodshelves.*;
@@ -14,12 +13,23 @@ import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class ShelfModelProvider implements ModelResourceProvider {
-    // A list of all the possible models this provider will have to handle.
-    // Will need to be reimplemented for any addon mods.
-    // Could have just been the list, but I don't mind them being separately referencable like this.
-    // An identifier for the texture I use for books.
-    public static final Identifier SHELF_BOOK_TEXTURE_ID = new Identifier("simple_shelves:block/shelf_books");
-
+    /**
+     * Returns a new model object if the resource ID is a: from this mod and b: of a type that this provider handles.
+     * For anyone looking to make an addon mod to Simple Shelves, you'll need to do the same. I recommend the following
+     * procedure:
+     * 1. Check to see if the resource ID is from your mod. Do this first so that it can fail fast on the literally
+     * thousands of vanilla models that are going to be run through this method, besides any modded models needed.
+     *
+     * 2. Check the path part of the ID to see which block or item it's supposed to be applying to. Below, I'm using the
+     * '/' character to cut away the part of the ID that indicates if the ID is for a block or an item. I do that
+     * because the only blocks or items that I need rendered are all shelves, and they will be using the same model as
+     * both blocks and items. You might need to handle things differently if you have an item with a custom model.
+     * The string values I chose are taken from the resource Identifiers I defined in my main class, SimpleShelves.
+     *
+     * Keep in mind that even though you've taken care of the model IDs here, you'll still need a blockstate json
+     * model for each block you define. It'll point to the model identifier that you're filtering for here.
+     * See src/main/resources/assets/simple_shelves/blockstates to see how I did that.
+     */
     @Override
     public @Nullable UnbakedModel loadModelResource(Identifier resourceId, ModelProviderContext context) throws ModelProviderException {
         if (resourceId.getNamespace().equals(SimpleShelves.NAMESPACE)) { // Is the ID from this mod?

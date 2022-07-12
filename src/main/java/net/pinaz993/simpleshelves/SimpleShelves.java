@@ -19,6 +19,7 @@ public class SimpleShelves implements ModInitializer {
     public static final FabricBlockSettings WOOD_SHELF_SETTINGS = FabricBlockSettings.of(Material.WOOD)
             .strength(1.5f, 1.5f);
 
+    // The titular shelves.
     public static final OakShelf OAK_SHELF = new OakShelf(WOOD_SHELF_SETTINGS);
     public static final BirchShelf BIRCH_SHELF = new BirchShelf(WOOD_SHELF_SETTINGS);
     public static final SpruceShelf SPRUCE_SHELF = new SpruceShelf(WOOD_SHELF_SETTINGS);
@@ -27,8 +28,12 @@ public class SimpleShelves implements ModInitializer {
     public static final DarkOakShelf DARK_OAK_SHELF = new DarkOakShelf(WOOD_SHELF_SETTINGS);
     public static final CrimsonShelf CRIMSON_SHELF = new CrimsonShelf(WOOD_SHELF_SETTINGS);
     public static final WarpedShelf WARPED_SHELF = new WarpedShelf(WOOD_SHELF_SETTINGS);
+
+    // A redstone book that causes shelves to emit redstone.
     public static final Item REDSTONE_BOOK = new RedstoneBookItem(
             new FabricItemSettings().group(ItemGroup.REDSTONE).maxCount(15));
+
+    // The block entity for keeping track of what items are in the shelves.
     public static BlockEntityType<ShelfEntity> SHELF_BLOCK_ENTITY;
 
     @Override
