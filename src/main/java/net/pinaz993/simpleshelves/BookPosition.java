@@ -5,6 +5,8 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.List;
+
 public enum BookPosition {
     ALPHA_1(0, 3),// Top Left Most
     ALPHA_2(1, 1),
@@ -65,11 +67,10 @@ public enum BookPosition {
                     default -> throw new IllegalStateException(
                             "Shelves cannot face " +facing + ".");
                 };
-                if (q == ShelfQuadrant.BETA) u -= .5; // BETA starts halfway into the block, horizontally.
                 // Iterate through all book positions in the quadrant that was clicked on.
                 for (BookPosition bp : q.BOOK_POSITIONS)
                     // If u is between the edges, return the current book.
-                    if (u >= bp.getLeftEdge(q) && u < bp.getRightEdge( q)) return bp;
+                    if (u >= bp.getLeftEdge() && u < bp.getRightEdge()) return bp;
                 throw new IllegalStateException( // Inaccessible unless none of the books in the quadrant are a match.
                         "Horizontal Position " + u + " doesn't hit any book in " + q);
             }
@@ -84,12 +85,10 @@ public enum BookPosition {
                     default -> throw new IllegalStateException(
                             "Shelves cannot face ".concat(facing.toString()).concat("."));
                 };
-                // BETA and DELTA start halfway into the block, horizontally.
-                if (q == ShelfQuadrant.BETA || q == ShelfQuadrant.DELTA) u -= .5;
                 // Iterate through all book positions in the quadrant that was clicked on.
                 for (BookPosition bp : q.BOOK_POSITIONS)
                     // If u is between the edges, return the current book.
-                    if (u >= bp.getLeftEdge(q) && u < bp.getRightEdge( q)) return bp;
+                    if (u >= bp.getLeftEdge() && u < bp.getRightEdge()) return bp;
                 throw new IllegalStateException( // Inaccessible unless none of the books in the quadrant are a match.
                         "Horizontal Position " + u + " doesn't hit any book in " + q);
             }
@@ -101,6 +100,8 @@ public enum BookPosition {
 
     /**
      * Iterate through all quadrants, and check if this book position exists in said quadrant.
+     * I'd rather not have to do this, but I can't hard encode this because either BookPosition or ShelfQuadrant have to
+     * be processed first, so I can't have both have references to the other. I tried, and one ended up being null.
      * @return the quadrant the position belongs to.
      */
     public ShelfQuadrant getQuadrant() {
@@ -111,31 +112,35 @@ public enum BookPosition {
     }
 
     /**
-     * Returns the distance in meters between the beginning of this book's quadrant to the left edge of the book.
+     * Returns the distance in meters between the left edge of the shelf to the left edge of the book.
      * e.g.: GAMMA_1 is .1875m wide at the spine. GAMMA_2: .125m. GAMMA_3: .1875. If this is called from GAMMA_3,
      * it will return .1875 + .125, or .3125, exactly 5 pixels across. I feel like this one isn't as easy to understand
      * as some of my other work. That being said, it allows for some very nice elegance.
      */
-    public float getLeftEdge( ShelfQuadrant quadrant){
-        float rtn = 0;
-        for(BookPosition bp: quadrant.BOOK_POSITIONS){
+    public float getLeftEdge(){
+        ShelfQuadrant q = getQuadrant();
+        // If the quadrant is on the right half of the shelf (either BETA or DELTA), start at .5f, else start at 0.
+        float rtn = (List.of(ShelfQuadrant.BETA, ShelfQuadrant.DELTA).contains(q) ? .5f : 0);
+        for(BookPosition bp: q.BOOK_POSITIONS){
             if(bp == this) return rtn; // Stop and return if we've reached this book.
             rtn += bp.WIDTH; // Add width to the return value iff we're not done.
         }
         throw new IllegalArgumentException("Book Position " + this
-                + " is not located in Shelf Quadrant " + quadrant);
+                + " is not located in Shelf Quadrant " + q);
     }
 
     /**
      * Does the same as getLeftEdge(), except it includes the width of this book.
      */
-    public float getRightEdge(ShelfQuadrant quadrant){
-        float rtn = 0;
-        for(BookPosition bp: quadrant.BOOK_POSITIONS){
+    public float getRightEdge(){
+        ShelfQuadrant q = getQuadrant();
+        // If the quadrant is on the right half of the shelf (either BETA or DELTA), start at .5f, else start at 0.
+        float rtn = (List.of(ShelfQuadrant.BETA, ShelfQuadrant.DELTA).contains(q) ? .5f : 0);
+        for(BookPosition bp: q.BOOK_POSITIONS){
             rtn += bp.WIDTH; // Add width to the return value iff we're not done.
             if(bp == this) return rtn; // Stop and return if we've reached this book.
         }
         throw new IllegalArgumentException("Book Position " + this
-                + " is not located in Shelf Quadrant " + quadrant);
+                + " is not located in Shelf Quadrant " + q);
     }
 }
