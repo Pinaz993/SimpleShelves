@@ -17,37 +17,37 @@ public enum BookQuadEmitter {
             new Vec2f(0, 0), new Vec2f(54/4f, 6/2f)),
 
     ALPHA_2(BookPosition.ALPHA_2, 6.52f, 7.0f, 0b000_000_000_010,
-            new Vec2f(17/16f, 0), new Vec2f(51/4f, 13/2f)),
+            new Vec2f(17/4f, 0), new Vec2f(51/4f, 13/2f)),
 
     ALPHA_3(BookPosition.ALPHA_3, 7.13f, 6.6f, 0b000_000_000_100,
-            new Vec2f(32/16f, 0), new Vec2f(52/4f, 2/2f)),
+            new Vec2f(32/4f, 0), new Vec2f(52/4f, 2/2f)),
 
     BETA_1 (BookPosition.BETA_1,  6.07f, 6.5f, 0b000_000_001_000,
-            new Vec2f(0, 7/16f), new Vec2f(51/4f, 4/2f)),
+            new Vec2f(0, 7/2f), new Vec2f(51/4f, 4/2f)),
 
     BETA_2 (BookPosition.BETA_2,  5.97f, 6.4f, 0b000_000_010_000,
-            new Vec2f(16/16f, 7/16f), new Vec2f(50/4f, 11/2f)),
+            new Vec2f(16/4f, 7/2f), new Vec2f(50/4f, 11/2f)),
 
     BETA_3 (BookPosition.BETA_3,  6.25f, 7.4f, 0b000_000_100_000,
-            new Vec2f(33/16f, 7/16f), new Vec2f(51/4f, 14/2f)),
+            new Vec2f(33/4f, 7/2f), new Vec2f(51/4f, 14/2f)),
 
     GAMMA_1(BookPosition.GAMMA_1, 6.99f, 5.7f, 0b000_001_000_000,
-            new Vec2f(0, 14/16f), new Vec2f(52/4f, 9/2f)),
+            new Vec2f(0, 14/2f), new Vec2f(52/4f, 9/2f)),
 
     GAMMA_2(BookPosition.GAMMA_2, 6.62f, 6.2f, 0b000_010_000_000,
-            new Vec2f(16/16f, 14/16f), new Vec2f(51/4f, 16/2f)),
+            new Vec2f(16/4f, 14/2f), new Vec2f(51/4f, 16/2f)),
 
     GAMMA_3(BookPosition.GAMMA_3, 6.79f, 6.6f, 0b000_100_000_000,
-            new Vec2f(34/16f, 14/16f), new Vec2f(53/4f, 2/2f)),
+            new Vec2f(34/4f, 14/2f), new Vec2f(53/4f, 2/2f)),
 
     DELTA_1(BookPosition.DELTA_1, 5.75f, 6.0f, 0b001_000_000_000,
-            new Vec2f(0, 21/16f), new Vec2f(51/4f, 8/2f)),
+            new Vec2f(0, 21/2f), new Vec2f(51/4f, 8/2f)),
 
     DELTA_2(BookPosition.DELTA_2, 6.76f, 7.2f, 0b010_000_000_000,
-            new Vec2f(17/17f, 21/16f), new Vec2f(52/4f, 1/2f)),
+            new Vec2f(17/4f, 21/2f), new Vec2f(52/4f, 1/2f)),
 
     DELTA_3(BookPosition.DELTA_3, 6.65f, 6.2f, 0b100_000_000_000,
-            new Vec2f(33/16f, 21/16f), new Vec2f(51/4f, 1/2f));
+            new Vec2f(33/4f, 21/2f), new Vec2f(51/4f, 1/2f));
 
     // The Z coordinate of the front surface of the rear plate of the shelf. This is as low in Z as a vertex can be.
     private static final float Z_BACK_STOP = 1/16f;
@@ -115,28 +115,26 @@ public enum BookQuadEmitter {
     public void emitBookQuads(QuadEmitter e, Sprite s) {
         // Get the left edge, and right edge and bottom coordinates
         ShelfQuadrant q = POSITION.getQuadrant();
-        float left = POSITION.getLeftEdge(q);
-        float right = POSITION.getRightEdge(q);
-        // If the book is in the alpha or beta quadrants (AKA top shelf),
-        // the bottom of the book should be at 9/16. Else, 1/16.
-        // I'm pretty sure the List gets marked for garbage collection after this line.
+        float left = POSITION.getLeftEdge();
+        float right = POSITION.getRightEdge();
+        // If the book is in the alpha or beta quadrants (AKA top shelf),the bottom of the book should be at 9/16.
+        // Else, 1/16. I'm pretty sure the List gets marked for garbage collection after this line, thankfully.
         float shelf = List.of(ShelfQuadrant.ALPHA, ShelfQuadrant.BETA).contains(q) ? 9/16f : 1/16f;
         float top = HEIGHT + shelf;
         float front = DEPTH + Z_BACK_STOP;
         // First, the head face.
-        e.pos(0, 0, top, Z_BACK_STOP);
-        e.pos(1, 0, top, front);
-        e.pos(2, 3/16f, top, front);
-        e.pos(3, 3/16f, top, Z_BACK_STOP);
+        e.pos(0, left, top, Z_BACK_STOP);
+        e.pos(1, left, top, front);
+        e.pos(2, right, top, front);
+        e.pos(3, right, top, Z_BACK_STOP);
         // Sprite work:
         e.sprite(0, 0, HEAD_UV_V0);
-        e.sprite(3, 0, HEAD_UV_V1);
+        e.sprite(1, 0, HEAD_UV_V1);
         e.sprite(2, 0, HEAD_UV_V2);
-        e.sprite(1, 0, HEAD_UV_V3);
+        e.sprite(3, 0, HEAD_UV_V3);
         e.spriteBake(0, s, MutableQuadView.BAKE_ROTATE_NONE);
         e.spriteColor(0, -1, -1, -1, -1); // Enable texture usage
-        // Add the quad to the mesh
-        e.emit();
+        e.emit(); // Add the quad to the mesh
 
         // Next, the rear cover.
         e.pos(0, left, top, Z_BACK_STOP);
@@ -150,8 +148,7 @@ public enum BookQuadEmitter {
         e.sprite(3, 0, REAR_UV_V3);
         e.spriteBake(0, s, MutableQuadView.BAKE_ROTATE_NONE);
         e.spriteColor(0, -1, -1, -1, -1); // Enable texture usage
-        // Add the quad to the mesh
-        e.emit();
+        e.emit(); // Add the quad to the mesh
 
         // Now, the spine.
         e.pos(0, left, top, front);
@@ -165,8 +162,7 @@ public enum BookQuadEmitter {
         e.sprite(3, 0, SPINE_UV_V3);
         e.spriteBake(0, s, MutableQuadView.BAKE_ROTATE_NONE);
         e.spriteColor(0, -1, -1, -1, -1); // Enable texture usage
-        // Add the quad to the mesh
-        e.emit();
+        e.emit(); // Add the quad to the mesh
 
         // Finally, the front cover.
         e.pos(0, right, top, front);
@@ -180,7 +176,6 @@ public enum BookQuadEmitter {
         e.sprite(3, 0, FRONT_UV_V3);
         e.spriteBake(0, s, MutableQuadView.BAKE_ROTATE_NONE);
         e.spriteColor(0, -1, -1, -1, -1); // Enable texture usage
-        // Add the quad to the mesh
-        e.emit();
+        e.emit(); // Add the quad to the mesh
     }
 }
