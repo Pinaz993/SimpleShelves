@@ -282,6 +282,7 @@ public interface ShelfInventory extends SidedInventory {
             // Get the fullness ratio of that slot and add it to the counter.
             c += (float)stack.getCount() / (float)Math.min(getMaxCountPerStack(), stack.getMaxCount());
         }
+        if(c == 0) return 0; // If the counter is still at zero, we're done. No signal.
         // Divide the counter by the number of possible slots to get the fullness ratio for the entire shelf.
         c /= getBookSlots().length;
         // Return the fullness ratio multiplied by 14, then rounded down, then incremented by one.
