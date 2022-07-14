@@ -8,28 +8,29 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 public enum BookPosition {
-    ALPHA_1(0, 3),// Top Left Most
-    ALPHA_2(1, 1),
-    ALPHA_3(2, 4),
-    BETA_1( 3, 2),
-    BETA_2( 4, 3),
-    BETA_3( 5, 3),// Top Right Most
-    GAMMA_1(6, 3),// Bottom Left Most
-    GAMMA_2(7, 2),
-    GAMMA_3(8, 3),
-    DELTA_1(9, 2),
-    DELTA_2(10,4),
-    DELTA_3(11,2); // Bottom Right Most
+    ALPHA_1(0, 3, 0b000_000_000_001), // Top Left Most
+    ALPHA_2(1, 1, 0b000_000_000_010),
+    ALPHA_3(2, 4, 0b000_000_000_100),
+    BETA_1( 3, 2, 0b000_000_001_000),
+    BETA_2( 4, 3, 0b000_000_010_000),
+    BETA_3( 5, 3, 0b000_000_100_000), // Top Right Most
+    GAMMA_1(6, 3, 0b000_001_000_000), // Bottom Left Most
+    GAMMA_2(7, 2, 0b000_010_000_000),
+    GAMMA_3(8, 3, 0b000_100_000_000),
+    DELTA_1(9, 2, 0b001_000_000_000),
+    DELTA_2(10,4, 0b010_000_000_000),
+    DELTA_3(11,2, 0b100_000_000_000); // Bottom Right Most
 
 
     public final int SLOT; // The index of the slot that this book position stores books in.
     public final float WIDTH; // Width in meters from front cover to rear cover
+    public final int BIT_FLAG; // A bit flag for use in quickly determining which books to render.
 
-    BookPosition(int slot, int width) {
+    BookPosition(int slot, int width, int bitFlag) {
         this.SLOT = slot;
         // Since this is provided in pixels, divide by 16 to get measurement in meters.
         this.WIDTH = width/16f;
-
+        this.BIT_FLAG = bitFlag;
     }
 
     /** When the player uses this block, calculate which book they're clicking on.
