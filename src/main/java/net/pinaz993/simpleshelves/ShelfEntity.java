@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -38,14 +39,14 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
     public int getRedstoneValue() {return this.redstoneValue;} // Private with getter for same reason as above.
 
     // An int that is used to contain binary flags to see if the book slots are filled. Initialized as empty.
-    private int BookSlotBinaryFlagContainer = 0b000000000000; // Private with getter for yet again the same reason.
+    private int BookSlotBinaryFlagContainer = 0b000_000_000_000; // Private with getter for yet again the same reason.
     // If you're wondering why I would make such a thing, consider this:
     // To bake the model for each book shelf, the model needs to know which books to bake into the model. As such,
     // unless I wish to throw all such things into the entity renderer, I need to get that information to the unbaked
-    // model. Critically, it is <i>much</i> faster to load a single int than it is to actually query the array of items.
-    // thus, instead of asking the inventory if a book slot is occupied, I'll simply calculate and cache this value here
-    // every time the inventory is marked dirty, and thus be able to quickly query which books are available using
-    // bit masks and binary logic to speed up the rendering process. As a bonus, this is also very easy to compare
+    // model. Critically, it is <i>much</i> faster to load a single short than it is to actually query the array of
+    // items. thus, instead of asking the inventory if a book slot is occupied, I'll simply calculate and cache this
+    // value here every time the inventory is marked dirty, and thus be able to quickly query which books are available
+    // using bit masks and binary logic to speed up the rendering process. As a bonus, this is also very easy to compare
     // against a cached value to see if the model even needs to be re-baked before we go through all that trouble.
 
 
@@ -105,29 +106,27 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
         // Verify that no quadrant has both generic items and books.
         for(ShelfQuadrant quad: ShelfQuadrant.class.getEnumConstants())
             if(quadrantHasGenericItem(quad) && quadrantHasBook(quad)) { // If one does...
-                world.spawnEntity(new ItemEntity(world,
+                world.spawnEntity(new ItemEntity(world, // Spit the generic item out the top of the shelf.
                     pos.getX() +.5, pos.getY()+1.5, pos.getZ() +.5,
-                    removeStack(quad.GENERIC_ITEM_SLOT))); // Spit the generic item out the top of the shelf.
+                    removeStack(quad.GENERIC_ITEM_SLOT)));
                 LogManager.getLogger().warn("Shelf quadrant " + quad + " at " + pos
                     + " contains both book-like items and generic items. "
                     + "Ejecting Generic item to block space above."); // Log the anomaly.
             }
-        this.hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
-        this.redstoneValue = 0; // Reset the redstone value.
+        hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
+        redstoneValue = 0; // Reset the redstone value.
+        BookSlotBinaryFlagContainer = 0b000_000_000_000; // Reset the binary flags.
         // Iterate over all positions and record the new state values, updating redstone value if needed.
-        for(BookPosition bp: BookPosition.class.getEnumConstants()){
+        for(BookPosition bp: BookPosition.values()){
             ItemStack stack = getStack(bp.SLOT); // Get the stack in the slot.
-            if(!stack.isEmpty()) // If the slot isn't empty...
-                this.BookSlotBinaryFlagContainer |= bp.BIT_FLAG; // ... OR the position flag onto the container.
+            // Flip the bit flag if the slot isn't empty. Otherwise, it stays 0.
+            if(!stack.isEmpty()) BookSlotBinaryFlagContainer |= bp.BIT_FLAG;
             // If the stack is of redstone books, update redstone value if this is higher than what we've seen thus far.
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
         }
-        // Set the new state, notify the block's neighbors (if on server), but don't recalculate lighting updates.
-        // Don't update pathfinding entities. Don't pass GO. Don't collect $200.
-        world.setBlockState(pos, state, Block.NOTIFY_NEIGHBORS | Block.SKIP_LIGHTING_UPDATES);
-        // Super calls World.markDirty() and possibly World.updateComparators(). We're already updating all neighbors,
-        world.markDirty(pos); // so we'll just call world.markDirty().
+        world.updateListeners(pos, state, state, Block.SKIP_LIGHTING_UPDATES | Block.NOTIFY_ALL);
+        super.markDirty();
         if(!world.isClient()) // If this is running on the server...
             ((ServerWorld)world).getChunkManager().markForUpdate(pos); // Mark changes to be synced to the client.
     }
