@@ -42,9 +42,9 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
     private int BookSlotBinaryFlagContainer = 0b000_000_000_000; // Private with getter for yet again the same reason.
     // If you're wondering why I would make such a thing, consider this:
     // To bake the model for each book shelf, the model needs to know which books to bake into the model. As such,
-    // unless I wish to throw all such things into the entity renderer, I need to get that information to the unbaked
-    // model. Critically, it is <i>much</i> faster to load a single short than it is to actually query the array of
-    // items. thus, instead of asking the inventory if a book slot is occupied, I'll simply calculate and cache this
+    // unless I wish to throw all such things into the entity renderer, I need to get that information to the baked
+    // model. Critically, it is <i>much</i> faster to load a single int than it is to actually query the array of
+    // items. Thus, instead of asking the inventory if a book slot is occupied, I'll simply calculate and cache this
     // value here every time the inventory is marked dirty, and thus be able to quickly query which books are available
     // using bit masks and binary logic to speed up the rendering process. As a bonus, this is also very easy to compare
     // against a cached value to see if the model even needs to be re-baked before we go through all that trouble.
@@ -67,8 +67,10 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        Inventories.readNbt(nbt, items);
-        markDirty();
+                       // The server will not send empty item stacks in NBT updates.
+        items.clear(); // Thus, we clear the list before populating our items list.
+        Inventories.readNbt(nbt, items); // Populate our list of items.
+        markDirty(); // Update the look of the block.
     }
 
     @Override
@@ -113,7 +115,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
                     + " contains both book-like items and generic items. "
                     + "Ejecting Generic item to block space above."); // Log the anomaly.
             }
-        hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render?
+        hasGenericItems = this.shelfHasGenericItem(); // Are there any generic items to render? Cache the answer.
         redstoneValue = 0; // Reset the redstone value.
         BookSlotBinaryFlagContainer = 0b000_000_000_000; // Reset the binary flags.
         // Iterate over all positions and record the new state values, updating redstone value if needed.
@@ -126,6 +128,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
         }
         world.updateListeners(pos, state, state, Block.SKIP_LIGHTING_UPDATES | Block.NOTIFY_ALL);
+        world.addSyncedBlockEvent(pos, state.getBlock(), 0, 0);
         super.markDirty();
         if(!world.isClient()) // If this is running on the server...
             ((ServerWorld)world).getChunkManager().markForUpdate(pos); // Mark changes to be synced to the client.

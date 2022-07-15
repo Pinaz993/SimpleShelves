@@ -147,6 +147,8 @@ public interface ShelfInventory extends SidedInventory {
                 newStack.setCount(newStack.getCount() - diff);
                 // The old stack is now full.
                 oldStack.setCount(oldStack.getMaxCount());
+                // We changed items. Update the looks of the block.
+                markDirty();
                 // return what's left of the new stack.
                 return newStack;
             }
@@ -178,23 +180,23 @@ public interface ShelfInventory extends SidedInventory {
     }
 
     /**
-     * Remove the stack that is in this slot and give it to me. If the stack isn't empty, mark the block dirty.
+     * Remove the stack that is in this slot and give it to me. Mark the block dirty.
      */
     @Override
     default ItemStack removeStack(int slot) {
         ItemStack rtn = Inventories.removeStack(getItems(), slot);
-        if(!rtn.isEmpty()) markDirty();
+        markDirty();
         return rtn;
     }
 
     /**
-     * Remove up to this many items from the stack in that slot and give them to me as a new stack. If you did something,
-     * mark the block as dirty.
+     * Remove up to this many items from the stack in that slot and give them to me as a new stack.
+     * Mark the block as dirty.
      */
     @Override
     default ItemStack removeStack(int slot, int amount) {
         ItemStack rtn = Inventories.splitStack(getItems(), slot, amount);
-        if (!rtn.isEmpty()) markDirty();
+        markDirty();
         return rtn;
     }
     //</editor-fold>
