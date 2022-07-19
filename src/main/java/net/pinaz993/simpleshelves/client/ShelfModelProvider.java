@@ -42,8 +42,9 @@ public class ShelfModelProvider implements ModelResourceProvider {
                 case "oak_shelf" -> new OakShelfModel();               // second entry in ("oak_shelf") so that we can
                 case "spruce_shelf" -> new SpruceShelfModel();         // see which block/item we need to make a model
                 case "warped_shelf" -> new WarpedShelfModel();         // for. If it doesn't fall into one of these
-                default -> null;                                       // entries, we return null to let the game know
-            };                                                         // to fall back to the vanilla system.
+                case "mangrove_shelf" -> new MangroveShelfModel();     // entries, we return null to let the game know
+                default -> null;                                       // to fall back to the vanilla system.
+            };
         }
         return null; // Nope. Pass.
     }

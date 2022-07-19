@@ -7,6 +7,7 @@
   "block.simple_shelves.dark_oak_shelf" : "Dark Oak Shelf",
   "block.simple_shelves.crimson_shelf" : "Crimson Shelf",
   "block.simple_shelves.warped_shelf": "Warped Shelf",
+  "block.simple_shelves.mangrove_shelf": "Mangrove Shelf",
 
   "item.simple_shelves.redstone_book.title": "Redstone"
 }

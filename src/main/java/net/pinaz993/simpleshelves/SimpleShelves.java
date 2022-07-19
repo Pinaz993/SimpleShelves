@@ -28,6 +28,7 @@ public class SimpleShelves implements ModInitializer {
     public static final DarkOakShelf DARK_OAK_SHELF = new DarkOakShelf(WOOD_SHELF_SETTINGS);
     public static final CrimsonShelf CRIMSON_SHELF = new CrimsonShelf(WOOD_SHELF_SETTINGS);
     public static final WarpedShelf WARPED_SHELF = new WarpedShelf(WOOD_SHELF_SETTINGS);
+    public static final MangroveShelf MANGROVE_SHELF = new MangroveShelf(WOOD_SHELF_SETTINGS);
 
     // A redstone book that causes shelves to emit redstone.
     public static final Item REDSTONE_BOOK = new RedstoneBookItem(
@@ -47,6 +48,7 @@ public class SimpleShelves implements ModInitializer {
         Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "dark_oak_shelf"), DARK_OAK_SHELF);
         Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "crimson_shelf"), CRIMSON_SHELF);
         Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "warped_shelf"), WARPED_SHELF);
+        Registry.register(Registry.BLOCK, new Identifier(NAMESPACE, "mangrove_shelf"), MANGROVE_SHELF);
 
         // Register BlockItems
         Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "oak_shelf"), // OAK_SHELF
@@ -65,6 +67,8 @@ public class SimpleShelves implements ModInitializer {
                 new BlockItem(CRIMSON_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
         Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "warped_shelf"), //WARPED SHELF
                 new BlockItem(WARPED_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
+        Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "mangrove_shelf"), // MANGROVE SHELF
+                new BlockItem(MANGROVE_SHELF, new FabricItemSettings().group(ItemGroup.DECORATIONS)));
 
         // Register Items
         Registry.register(Registry.ITEM, new Identifier(NAMESPACE, "redstone_book"), REDSTONE_BOOK);
