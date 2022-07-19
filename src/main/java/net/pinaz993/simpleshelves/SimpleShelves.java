@@ -79,7 +79,7 @@ public class SimpleShelves implements ModInitializer {
                 NAMESPACE.concat(":shelf_block_entity"),
                 FabricBlockEntityTypeBuilder.create(ShelfEntity::new,
                         OAK_SHELF, BIRCH_SHELF, SPRUCE_SHELF, JUNGLE_SHELF,
-                        ACACIA_SHELF, DARK_OAK_SHELF, CRIMSON_SHELF, WARPED_SHELF
+                        ACACIA_SHELF, DARK_OAK_SHELF, CRIMSON_SHELF, WARPED_SHELF, MANGROVE_SHELF
                 ).build(null));
     }
 }
