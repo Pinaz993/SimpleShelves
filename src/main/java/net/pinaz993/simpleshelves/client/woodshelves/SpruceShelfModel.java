@@ -14,7 +14,8 @@ public class SpruceShelfModel extends UnbakedShelfModel {
     @Override
     public SpriteIdentifier getShelfSpriteId() {
         return new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
-                new Identifier("minecraft:block/spruce_planks"));
+                new Identifier("minecraft:block/spruce_planks")
+        );
     }
 
     @Override

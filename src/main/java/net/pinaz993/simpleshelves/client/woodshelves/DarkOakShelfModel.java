@@ -14,7 +14,8 @@ public class DarkOakShelfModel extends UnbakedShelfModel {
     @Override
     public SpriteIdentifier getShelfSpriteId() {
         return new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
-                new Identifier("minecraft:block/dark_oak_planks"));
+                new Identifier("minecraft:block/dark_oak_planks")
+        );
     }
 
     @Override

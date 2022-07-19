@@ -14,7 +14,8 @@ public class AcaciaShelfModel extends UnbakedShelfModel {
     @Override
     public SpriteIdentifier getShelfSpriteId() {
         return new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
-                new Identifier("minecraft:block/acacia_planks"));
+                new Identifier("minecraft:block/acacia_planks")
+        );
     }
 
     @Override

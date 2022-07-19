@@ -14,7 +14,8 @@ public class JungleShelfModel extends UnbakedShelfModel {
     @Override
     public SpriteIdentifier getShelfSpriteId() {
         return new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
-                new Identifier("minecraft:block/jungle_planks"));
+                new Identifier("minecraft:block/jungle_planks")
+        );
     }
 
     @Override

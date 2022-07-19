@@ -14,7 +14,8 @@ public class WarpedShelfModel extends UnbakedShelfModel {
     @Override
     public SpriteIdentifier getShelfSpriteId() {
         return new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
-                new Identifier("minecraft:block/warped_planks"));
+                new Identifier("minecraft:block/warped_planks")
+        );
     }
 
     @Override
