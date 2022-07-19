@@ -12,10 +12,12 @@ import net.pinaz993.simpleshelves.SimpleShelves;
 public class SimpleShelvesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        // Register the block entity renderer for the shelves
         BlockEntityRendererRegistry.register(
                 SimpleShelves.SHELF_BLOCK_ENTITY,
                 (BlockEntityRendererFactory.Context ctx) -> new ShelfEntityRenderer()
         );
+        // Register the model loader for the shelves.
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm -> new ShelfModelProvider());
     }
 }
