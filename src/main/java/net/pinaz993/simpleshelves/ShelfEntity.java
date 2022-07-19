@@ -127,9 +127,9 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
             if(stack.isOf(SimpleShelves.REDSTONE_BOOK))
                 this.redstoneValue = Math.max(this.redstoneValue, stack.getCount());
         }
+        // Cause clients to reevaluate block model.
         world.updateListeners(pos, state, state, Block.SKIP_LIGHTING_UPDATES | Block.NOTIFY_ALL);
-        world.addSyncedBlockEvent(pos, state.getBlock(), 0, 0);
-        super.markDirty();
+        world.updateNeighborsAlways(pos, state.getBlock()); // Cause all neighbors to receive a block update.
         if(!world.isClient()) // If this is running on the server...
             ((ServerWorld)world).getChunkManager().markForUpdate(pos); // Mark changes to be synced to the client.
     }
