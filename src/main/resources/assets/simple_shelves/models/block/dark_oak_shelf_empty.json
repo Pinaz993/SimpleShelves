@@ -1,0 +1,81 @@
+{
+  "_comments": [
+    "Originally generated using (https://mrcrayfish.com/tools?id=mc)."
+  ],
+  "author": "Patrick Shannon",
+  "textures": {
+    "material": "minecraft:block/dark_oak_planks",
+    "particle": "#material"
+  },
+  "display": {
+    "gui": {
+      "rotation": [ 30, 135, 0 ],
+      "translation": [ -1.5, -1, 0 ],
+      "scale": [ 0.625, 0.625, 0.625 ]
+    },
+    "ground": {
+      "rotation": [ 0, 0, 0 ],
+      "translation": [ 0, 3, 0 ],
+      "scale": [ 0.25, 0.25, 0.25 ]
+    },
+    "fixed": {
+      "rotation": [ 0, 0, 0 ],
+      "translation": [ 0, 0, -3.5 ],
+      "scale": [ 0.5, 0.5, 0.5 ]
+    },
+    "head": {
+      "rotation": [ 0, 0, 0 ],
+      "translation": [ 0, 0, 0.5 ],
+      "scale": [ 1, 1, 1 ]
+    },
+    "firstperson_righthand": {
+      "rotation": [ 0, 45, 0 ],
+      "translation": [ 0, 2.5, 0 ],
+      "scale": [ 0.4, 0.4, 0.4 ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [ 75, 315, 0 ],
+      "translation": [ 0, 2.5, 0 ],
+      "scale": [ 0.375, 0.375, 0.375 ]
+    }
+  },
+  "elements": [
+    {
+      "name": "bottom",
+      "from": [ 0, 0, 8 ],
+      "to": [ 16, 1, 15 ],
+      "faces": {
+        "north": { "texture": "#material", "uv": [ 0, 15, 16, 16 ] },
+        "east": { "texture": "#material", "uv": [ 1, 15, 8, 16 ] },
+        "west": { "texture": "#material", "uv": [ 8, 15, 15, 16 ] },
+        "up": { "texture": "#material", "uv": [ 0, 1, 16, 8 ], "rotation": 180 },
+        "down": { "texture": "#material", "uv": [ 0, 1, 16, 8 ], "rotation": 180 }
+      }
+    },
+    {
+      "name": "back",
+      "from": [ 0, 0, 15 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "north": { "texture": "#material", "uv": [ 0, 0, 16, 16 ] },
+        "east": { "texture": "#material", "uv": [ 15, 0, 16, 16 ] },
+        "south": { "texture": "#material", "uv": [ 0, 0, 16, 16 ] },
+        "west": { "texture": "#material", "uv": [ 0, 0, 1, 16 ] },
+        "up": { "texture": "#material", "uv": [ 0, 15, 16, 16 ], "rotation": 180 },
+        "down": { "texture": "#material", "uv": [ 0, 0, 16, 1 ], "rotation": 180 }
+      }
+    },
+    {
+      "name": "middle_shelf",
+      "from": [ 0, 8, 8 ],
+      "to": [ 16, 9, 15 ],
+      "faces": {
+        "north": { "texture": "#material", "uv": [ 0, 0, 16, 1 ] },
+        "east": { "texture": "#material", "uv": [ 1, 7, 8, 8 ] },
+        "west": { "texture": "#material", "uv": [ 8, 7, 15, 8 ] },
+        "up": { "texture": "#material", "uv": [ 0, 1, 16, 8 ], "rotation": 180 },
+        "down": { "texture": "#material", "uv": [ 0, 1, 16, 8 ], "rotation": 180 }
+      }
+    }
+  ]
+}

@@ -1,36 +1,36 @@
 package net.pinaz993.simpleshelves;
 
 
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.List;
+
 public enum BookPosition {
-    ALPHA_1(0, AbstractShelf.BOOK_ALPHA_1, 3),
-    ALPHA_2(1, AbstractShelf.BOOK_ALPHA_2, 1),
-    ALPHA_3(2, AbstractShelf.BOOK_ALPHA_3, 4),
-    BETA_1(3, AbstractShelf.BOOK_BETA_1, 2),
-    BETA_2(4, AbstractShelf.BOOK_BETA_2, 3),
-    BETA_3(5, AbstractShelf.BOOK_BETA_3, 3),
-    GAMMA_1(6, AbstractShelf.BOOK_GAMMA_1, 3),
-    GAMMA_2(7, AbstractShelf.BOOK_GAMMA_2, 2),
-    GAMMA_3(8, AbstractShelf.BOOK_GAMMA_3, 3),
-    DELTA_1(9, AbstractShelf.BOOK_DELTA_1, 2),
-    DELTA_2(10, AbstractShelf.BOOK_DELTA_2, 4),
-    DELTA_3(11, AbstractShelf.BOOK_DELTA_3, 2);
+    ALPHA_1(0, 3, 0b000_000_000_001), // Top Left Most
+    ALPHA_2(1, 1, 0b000_000_000_010),
+    ALPHA_3(2, 4, 0b000_000_000_100),
+    BETA_1( 3, 2, 0b000_000_001_000),
+    BETA_2( 4, 3, 0b000_000_010_000),
+    BETA_3( 5, 3, 0b000_000_100_000), // Top Right Most
+    GAMMA_1(6, 3, 0b000_001_000_000), // Bottom Left Most
+    GAMMA_2(7, 2, 0b000_010_000_000),
+    GAMMA_3(8, 3, 0b000_100_000_000),
+    DELTA_1(9, 2, 0b001_000_000_000),
+    DELTA_2(10,4, 0b010_000_000_000),
+    DELTA_3(11,2, 0b100_000_000_000); // Bottom Right Most
 
 
     public final int SLOT; // The index of the slot that this book position stores books in.
-    // The property that tells the model loading system whether to load this book or not.
-    public final BooleanProperty BLOCK_STATE_PROPERTY;
-    // How wide this book is.
-    public final double WIDTH;
+    public final float WIDTH; // Width in meters from front cover to rear cover
+    public final int BIT_FLAG; // A bit flag for use in quickly determining which books to render.
 
-    BookPosition(int slot, BooleanProperty blockStateProperty, int pixels) {
+    BookPosition(int slot, int width, int bitFlag) {
         this.SLOT = slot;
-        this.BLOCK_STATE_PROPERTY = blockStateProperty;
-        this.WIDTH = pixels *.0625;
+        // Since this is provided in pixels, divide by 16 to get measurement in meters.
+        this.WIDTH = width/16f;
+        this.BIT_FLAG = bitFlag;
     }
 
     /** When the player uses this block, calculate which book they're clicking on.
@@ -68,11 +68,10 @@ public enum BookPosition {
                     default -> throw new IllegalStateException(
                             "Shelves cannot face " +facing + ".");
                 };
-                if (q == ShelfQuadrant.BETA) u -= .5; // BETA starts halfway into the block, horizontally.
                 // Iterate through all book positions in the quadrant that was clicked on.
                 for (BookPosition bp : q.BOOK_POSITIONS)
                     // If u is between the edges, return the current book.
-                    if (u >= getLeftEdge(bp, q) && u < getRightEdge(bp, q)) return bp;
+                    if (u >= bp.getLeftEdge() && u < bp.getRightEdge()) return bp;
                 throw new IllegalStateException( // Inaccessible unless none of the books in the quadrant are a match.
                         "Horizontal Position " + u + " doesn't hit any book in " + q);
             }
@@ -87,12 +86,10 @@ public enum BookPosition {
                     default -> throw new IllegalStateException(
                             "Shelves cannot face ".concat(facing.toString()).concat("."));
                 };
-                // BETA and DELTA start halfway into the block, horizontally.
-                if (q == ShelfQuadrant.BETA || q == ShelfQuadrant.DELTA) u -= .5;
                 // Iterate through all book positions in the quadrant that was clicked on.
                 for (BookPosition bp : q.BOOK_POSITIONS)
                     // If u is between the edges, return the current book.
-                    if (u >= getLeftEdge(bp, q) && u < getRightEdge(bp, q)) return bp;
+                    if (u >= bp.getLeftEdge() && u < bp.getRightEdge()) return bp;
                 throw new IllegalStateException( // Inaccessible unless none of the books in the quadrant are a match.
                         "Horizontal Position " + u + " doesn't hit any book in " + q);
             }
@@ -103,31 +100,48 @@ public enum BookPosition {
     }
 
     /**
-     * Returns the distance in meters between the beginning of this book's quadrant to the left edge of the book.
+     * Iterate through all quadrants, and check if this book position exists in said quadrant.
+     * I'd rather not have to do this, but I can't hard encode this because either BookPosition or ShelfQuadrant have to
+     * be processed first, so I can't have both have references to the other. I tried, and one ended up being null.
+     * @return the quadrant the position belongs to.
+     */
+    public ShelfQuadrant getQuadrant() {
+        for(ShelfQuadrant q: ShelfQuadrant.class.getEnumConstants()) // Iterate through quadrants.
+            for(BookPosition bp: q.BOOK_POSITIONS) // Iterate through positions in each quadrant.
+                if(bp == this) return q; // If you find the book position in question, return the quadrant you found it in.
+        throw new IllegalStateException(String.format("%s is not in any shelf quadrant.", this)); // How did we get here?
+    }
+
+    /**
+     * Returns the distance in meters between the left edge of the shelf to the left edge of the book.
      * e.g.: GAMMA_1 is .1875m wide at the spine. GAMMA_2: .125m. GAMMA_3: .1875. If this is called from GAMMA_3,
      * it will return .1875 + .125, or .3125, exactly 5 pixels across. I feel like this one isn't as easy to understand
      * as some of my other work. That being said, it allows for some very nice elegance.
      */
-    public static double getLeftEdge(BookPosition pos, ShelfQuadrant quadrant){
-        double rtn = 0;
-        for(BookPosition bp: quadrant.BOOK_POSITIONS){
-            if(bp == pos) return rtn; // Stop and return if we've reached this book.
+    public float getLeftEdge(){
+        ShelfQuadrant q = getQuadrant();
+        // If the quadrant is on the right half of the shelf (either BETA or DELTA), start at .5f, else start at 0.
+        float rtn = (List.of(ShelfQuadrant.BETA, ShelfQuadrant.DELTA).contains(q) ? .5f : 0);
+        for(BookPosition bp: q.BOOK_POSITIONS){
+            if(bp == this) return rtn; // Stop and return if we've reached this book.
             rtn += bp.WIDTH; // Add width to the return value iff we're not done.
         }
-        throw new IllegalArgumentException("Book Position " + pos.toString()
-                + " is not located in Shelf Quadrant " + quadrant);
+        throw new IllegalArgumentException("Book Position " + this
+                + " is not located in Shelf Quadrant " + q);
     }
 
     /**
      * Does the same as getLeftEdge(), except it includes the width of this book.
      */
-    public static double getRightEdge(BookPosition pos, ShelfQuadrant quadrant){
-        double rtn = 0;
-        for(BookPosition bp: quadrant.BOOK_POSITIONS){
+    public float getRightEdge(){
+        ShelfQuadrant q = getQuadrant();
+        // If the quadrant is on the right half of the shelf (either BETA or DELTA), start at .5f, else start at 0.
+        float rtn = (List.of(ShelfQuadrant.BETA, ShelfQuadrant.DELTA).contains(q) ? .5f : 0);
+        for(BookPosition bp: q.BOOK_POSITIONS){
             rtn += bp.WIDTH; // Add width to the return value iff we're not done.
-            if(bp == pos) return rtn; // Stop and return if we've reached this book.
+            if(bp == this) return rtn; // Stop and return if we've reached this book.
         }
-        throw new IllegalArgumentException("Book Position " + pos.toString()
-                + " is not located in Shelf Quadrant " + quadrant);
+        throw new IllegalArgumentException("Book Position " + this
+                + " is not located in Shelf Quadrant " + q);
     }
 }

@@ -1,6 +1,0 @@
-{
-  "parent": "simple_shelves:block/abstract_shelf",
-  "textures": {
-    "material": "minecraft:block/birch_planks"
-  }
-}
