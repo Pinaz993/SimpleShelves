@@ -72,7 +72,7 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
         else matrices.scale(.375f, .375f, .375f); // Otherwise scale to 35.7%
         // Rotate 180 degrees to make block or item face properly outward.
         matrices.multiply(new Quaternion(new Vec3f(0, 1, 0), 180, true));
-        // Actually render the item.
+        // Render the item as if it is in an item frame.
         renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
         matrices.pop(); // We're done with this matrix entry (whatever that entails).
     }
