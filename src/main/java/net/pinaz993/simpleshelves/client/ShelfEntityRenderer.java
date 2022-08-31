@@ -73,7 +73,7 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
         // Rotate 180 degrees to make block or item face properly outward.
         matrices.multiply(new Quaternion(new Vec3f(0, 1, 0), 180, true));
         // Render the item as if it is in an item frame.
-        renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
+        renderer.renderItem(MinecraftClient.getInstance().player, stack, ModelTransformation.Mode.FIXED, false, matrices, vertexConsumers, null, light, overlay, 0);
         matrices.pop(); // We're done with this matrix entry (whatever that entails).
     }
 }
