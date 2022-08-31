@@ -50,6 +50,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * Localization in English
      * Analog Redstone Emission Behavior
      *
+     * TODO: Implement custom pick-block (MMB) behavior like item frames.
      *
      * @param settings: used for super HorizontalFacingBlock
      */

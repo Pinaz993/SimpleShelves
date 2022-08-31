@@ -70,7 +70,7 @@ public class ShelfEntityRenderer implements BlockEntityRenderer<ShelfEntity> {
         if(renderer.getModel(stack, null, null, 0).hasDepth())
             matrices.scale(.75f, .75f, .75f); // Scale to 75%.
         else matrices.scale(.375f, .375f, .375f); // Otherwise scale to 35.7%
-        // Rotate 180 degrees to make block or item face properly outward.
+        // Rotate 180 degrees around Y axis to make block or item face properly outward.
         matrices.multiply(new Quaternion(new Vec3f(0, 1, 0), 180, true));
         // Render the item as if it is in an item frame.
         renderer.renderItem(MinecraftClient.getInstance().player, stack, ModelTransformation.Mode.FIXED, false, matrices, vertexConsumers, null, light, overlay, 0);

@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
  * This interface needs to be different from the default inventory in several ways.
  * 1. The first 12 slots need to be whitelisted to only accept book-like items.
  *    That includes (minecraft):lectern_books, :book, :enchanted_book and simple_shelves:redstone_book.
+ *    This list can be modified via data-packs and JSON files in other mods.
  * 2. The last 4 slots will be for generic items, and will be assigned one per quadrant.
- *
  * I made the (perhaps unadvised) decision to implement Inventory myself instead of using Juuz's fine generic
  * implementation. I'm also packing it with things that the tutorial puts in the block entity itself, because I want to
  * handle all the inventory stuff in one place. I'm on my own here, and it's a little scary, but fun.
