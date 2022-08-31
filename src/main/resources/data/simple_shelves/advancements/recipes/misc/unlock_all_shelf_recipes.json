@@ -1,0 +1,94 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_planks": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "minecraft:planks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_oak_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:oak_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_spruce_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:spruce_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_birch_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:birch_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_jungle_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:jungle_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_acacia_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:acacia_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_dark_oak_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:dark_oak_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_crimson_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:crimson_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_warped_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:warped_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_mangrove_shelf_recipe": {
+      "conditions": {
+        "recipe": "simple_shelves:mangrove_shelf"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [[
+    "has_planks",
+    "has_oak_shelf_recipe",
+    "has_spruce_shelf_recipe",
+    "has_birch_shelf_recipe",
+    "has_jungle_shelf_recipe",
+    "has_acacia_shelf_recipe",
+    "has_dark_oak_shelf_recipe",
+    "has_crimson_shelf_recipe",
+    "has_warped_shelf_recipe",
+    "has_mangrove_shelf_recipe"
+  ]],
+  "rewards": {
+    "recipes": [
+      "simple_shelves:oak_shelf",
+      "simple_shelves:spruce_shelf",
+      "simple_shelves:birch_shelf",
+      "simple_shelves:jungle_shelf",
+      "simple_shelves:acacia_shelf",
+      "simple_shelves:dark_oak_shelf",
+      "simple_shelves:crimson_shelf",
+      "simple_shelves:warped_shelf",
+      "simple_shelves:mangrove_shelf"
+    ]
+  }
+}
