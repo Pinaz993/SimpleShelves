@@ -22,35 +22,34 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("deprecation") //Because Mojang abuses @Deprecated. Not the smartest practice, I'll say.
 public abstract class AbstractShelf extends HorizontalFacingBlock implements BlockEntityProvider {
     /**
-     * A block that can store and display items and books.
-     *
+     * A block that can store and display items and books.<p>
      * Abstract, because there are shelves for each type of wood, and possibly other materials.
-     * As this item needs to store an inventory, a block entity has been implemented for this block. (ShelfBlockEntity).
-     *
-     * One goal was to allow this shelf to boost enchantment levels. That is not happening without mixins, and I don't
-     * want to tangle with those at the moment. Maybe later, or if an API comes out.
-     *
-     * Done:
-     * Models
-     * Book Textures and Model
-     * Books render when they're on the shelves.
-     * book_like item tag
-     * Quadrants can hold books, generic items, or nothing.
-     * Use Book Insertion
-     * Use Book Extraction
-     * Use Item Insertion
-     * Use Item Extraction
-     * SidedInventory Insertion and Extraction
-     *      Only works with books
-     *      Will not insert into quadrants that have generic items
-     * Generic item rendering
-     * Inventory Syncing
-     * All 8 woods accounted for.
-     * Comparator Behavior
-     * Localization in English
-     * Analog Redstone Emission Behavior
-     *
-     * TODO: Implement custom pick-block (MMB) behavior like item frames.
+     * As this block needs to store an inventory, a block entity has been implemented for this block. (ShelfBlockEntity).
+     * <p>
+     * Completed Features:<p>
+     * * Models<p>
+     * * Book Textures and Model<p>
+     * * Books render when they're on the shelves.<p>
+     * * book_like item tag<p>
+     * * Quadrants can hold books, generic items, or nothing.<p>
+     * * Use Book Insertion<p>
+     * * Use Book Extraction<p>
+     * * Use Item Insertion<p>
+     * * Use Item Extraction<p>
+     * * SidedInventory Insertion and Extraction<p>
+     * * * * Only works with books<p>
+     * * * * Will not insert into quadrants that have generic items<p>
+     * * Generic item rendering<p>
+     * * Inventory Syncing<p>
+     * * All 8 woods accounted for.<p>
+     * * Comparator Behavior<p>
+     * * Localization in English<p>
+     * * Analog Redstone Emission Behavior<p><hl>--------</hl><p>
+     * Features I was not able to implement, due to inadequate method parameters:<p>
+     * * Enchantment boosting (would need an API to add blocks to the list)<p>
+     * * Item frame-like pick-block behavior based on what item the player is pointing at (don't have hit coords)<p>
+     * * Randomized book appearance per shelf (I don't have block pos until model is already baked,
+     * and thus can't change size, texture, or position of book models unless I reverse engineer baked models.)
      *
      * @param settings: used for super HorizontalFacingBlock
      */
