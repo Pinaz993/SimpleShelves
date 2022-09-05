@@ -41,15 +41,17 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
      * * * * Will not insert into quadrants that have generic items<p>
      * * Generic item rendering<p>
      * * Inventory Syncing<p>
-     * * All 8 woods accounted for.<p>
+     * * All <strike>8</strike> 9 woods accounted for.<p>
      * * Comparator Behavior<p>
      * * Localization in English<p>
      * * Analog Redstone Emission Behavior<p><hl>--------</hl><p>
      * Features I was not able to implement, due to inadequate method parameters:<p>
-     * * Enchantment boosting (would need an API to add blocks to the list)<p>
+     * * Enchantment boosting (would need an API to add blocks to the list, and indeed to make a list in the first
+     * place)<p>
      * * Item frame-like pick-block behavior based on what item the player is pointing at (don't have hit coords)<p>
      * * Randomized book appearance per shelf (I don't have block pos until model is already baked,
-     * and thus can't change size, texture, or position of book models unless I reverse engineer baked models.)
+     * and thus can't change size, texture, or position of book models unless I reverse engineer baked models.
+     * While I could do that, their implementation could change at any time, and then I'd be forced to do it again.)
      *
      * @param settings: used for super HorizontalFacingBlock
      */
@@ -90,6 +92,8 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     }
     //</editor-fold>
 
+    // This is where all manual inserting an extracting behavior lives. I might have to change that at some point,
+    // if I need that logic elsewhere. For now though, this will do just fine.
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         ShelfEntity blockEntity;
@@ -103,10 +107,10 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
                             Block Entity: %s
                             Coordinates: %s""", world.getBlockEntity(pos), pos
             ));
-        }
+        } // I'm assuming here that throwing an exception means that I'm no longer processing this method.
         // What side was hit?
         LocalHorizontalSide localSide = LocalHorizontalSide.getLocalSide(hit.getSide(), state.get(FACING));
-        // If it was the bottom or back, no dice.
+        // If it was the bottom or back, no dice. Do nothing to the shelf.
         if (localSide == LocalHorizontalSide.BACK || localSide == LocalHorizontalSide.BOTTOM) return ActionResult.PASS;
         ShelfQuadrant quadrant = ShelfQuadrant.getQuadrant(hit, state.get(FACING)); // Which quadrant?
         ItemStack activeStack = player.getMainHandStack(); // What's in the player's main hand?
@@ -127,7 +131,7 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
                         blockEntity.removeStack(bookPosition.SLOT));
                 return ActionResult.SUCCESS; // Something was done.
             } else return ActionResult.FAIL; // If no book or generic item is in the slot, nothing was done.
-        }
+        } // Player has something in their hand.
         if(ShelfInventory.isBookLike(activeStack)){ // Is the player holding a book-like item?
             // If so, try to insert it into the appropriate book slot.
             // If the quadrant the player clicked on has a generic item in it, the action fails, full stop.
@@ -147,15 +151,14 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
             // Place the result of that method in the player's selected slot.
             player.getInventory().setStack(player.getInventory().selectedSlot,
                     blockEntity.attemptInsertion(quadrant.GENERIC_ITEM_SLOT, activeStack));
-            // markDirty() won't trigger observers unless world.setBlockState() is called with NOTIFY_LISTENERS set.
-            // Since that doesnt happen with generic items, manually do that here, so that we trigger any observers.
             return ActionResult.SUCCESS; // Something was done.
         }
     }
 
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) { // If the block type has changed
+        // If the block is now a different block and hasn't been moved
+        if (state.getBlock() != newState.getBlock() && !moved) {
             BlockEntity be = world.getBlockEntity(pos); // Get the block entity.
             if(be instanceof ShelfEntity){ // If the entity is what we expect it to be...
                 // Don't know why it wouldn't be, TBH. Monkey See, Monkey Do.
