@@ -214,6 +214,4 @@ public abstract class AbstractShelf extends HorizontalFacingBlock implements Blo
     }
 
     //</editor-fold>
-
-
 }
