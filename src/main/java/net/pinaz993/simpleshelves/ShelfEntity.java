@@ -3,6 +3,7 @@ package net.pinaz993.simpleshelves;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -95,7 +96,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, BlockEnt
         }
         // Super calls World.markDirty() and possibly World.updateComparators().
         BlockEntity.markDirty(world, pos, state);
-        if(!world.isClient()) { // If this is running on the server...
+        if(!(world instanceof ClientWorld)) { // If this is running on the server...
             world.updateNeighbors(pos, state.getBlock()); // Update all the neighbors.
             sync(); // Sync to the client.
         }
