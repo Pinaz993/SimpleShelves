@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -117,7 +118,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory {
         world.setBlockState(pos, newState, Block.NOTIFY_NEIGHBORS | Block.SKIP_LIGHTING_UPDATES);
         // Super calls World.markDirty() and possibly World.updateComparators(). We're already updating all neighbors,
         world.markDirty(pos); // so we'll just call world.markDirty().
-        if(!world.isClient()) // If this is running on the server...
+        if(!(world instanceof ClientWorld)) // If this is running on the server...
             ((ServerWorld)world).getChunkManager().markForUpdate(pos); // Mark changes to be synced to the client.
     }
 
