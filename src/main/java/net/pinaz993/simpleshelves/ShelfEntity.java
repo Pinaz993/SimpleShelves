@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -129,7 +130,7 @@ public class ShelfEntity extends BlockEntity implements ShelfInventory, RenderAt
         // Cause clients to reevaluate block model.
         world.updateListeners(pos, state, state, Block.SKIP_LIGHTING_UPDATES | Block.NOTIFY_ALL);
         world.updateNeighborsAlways(pos, state.getBlock()); // Cause all neighbors to receive a block update.
-        if(!world.isClient()) // If this is running on the server...
+        if(!(world instanceof ClientWorld)) // If this is running on the server...
             ((ServerWorld)world).getChunkManager().markForUpdate(pos); // Mark changes to be synced to the client.
     }
 
