@@ -1,5 +1,5 @@
 # SimpleShelves
-Fabric mod for 1.17 and up. Adds shelves to display items and books. Heavily inspired by BiblioCraft, but
+Fabric mod for 1.17 to 1.19. Adds shelves to display items and books. Heavily inspired by BiblioCraft, but
 coded entirely independently of said mod. 
 
 ## Features
